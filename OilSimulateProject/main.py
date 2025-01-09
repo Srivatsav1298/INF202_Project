@@ -4,7 +4,6 @@ from src.io.mesh_reader import Mesh
 def main():
     start_time = time.time()  # Start the timer
     
-    # Replace with an actual mesh file name that you have
     file_name = "data/mesh/bay.msh"
     
     # Create the mesh
@@ -12,7 +11,7 @@ def main():
 
     # Build neighbour relationships
     bay_mesh.find_neighbours()
-    
+
     # Print out each cell
     for cell in bay_mesh.get_cells():
         print(cell)
