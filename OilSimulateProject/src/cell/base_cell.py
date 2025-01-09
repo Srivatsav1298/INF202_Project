@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-from .line_cell import Line
-from .triangle_cell import Triangle
 
 class Cell(ABC):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
@@ -19,6 +17,9 @@ class Cell(ABC):
         return self._points
 
     def store_neighbours(self):
+        from .line_cell import Line
+        from .triangle_cell import Triangle
+
         self_set = set(self._points)
         for cell in self._mesh.get_cells():
             point_set = set(cell.get_points())
@@ -32,6 +33,9 @@ class Cell(ABC):
                     self._neighbours.append(cell)
 
     def is_boundary(self):
+        from .line_cell import Line
+        from .triangle_cell import Triangle
+
         if isinstance(self, Line):
             return True
         if isinstance(self, Triangle):
@@ -50,6 +54,8 @@ class Point:
 
 class CellFactory:
     def __init__(self):
+        from .line_cell import Line
+        from .triangle_cell import Triangle
         self._cell_types = {
             "line": Line,
             "triangle": Triangle

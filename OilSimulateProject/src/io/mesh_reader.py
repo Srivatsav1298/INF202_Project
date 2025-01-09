@@ -1,6 +1,5 @@
 import meshio
-from cell.base_cell import CellFactory
-from cell.base_cell import Point
+from ..cell.base_cell import Point, CellFactory
 
 class Mesh:
     def __init__(self, file_name):
