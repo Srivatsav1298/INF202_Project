@@ -51,7 +51,6 @@ class Point:
         self._x = x
         self._y = y
 
-
 class CellFactory:
     def __init__(self):
         from .line_cell import Line
