@@ -1,5 +1,5 @@
 import time
-from src.io.mesh_reader import Mesh  # or from oilsimulateproject.src.io.mesh_reader import Mesh
+from src.io.mesh_reader import Mesh
 
 def main():
     start_time = time.time()  # Start the timer
@@ -8,13 +8,13 @@ def main():
     file_name = "data/mesh/bay.msh"
     
     # Create the mesh
-    mesh = Mesh(file_name)
+    bay_mesh = Mesh(file_name)
 
     # Build neighbour relationships
-    mesh.find_neighbours()
-
+    bay_mesh.find_neighbours()
+    
     # Print out each cell
-    for cell in mesh.get_cells():
+    for cell in bay_mesh.get_cells():
         print(cell)
 
     end_time = time.time()  # End the timer

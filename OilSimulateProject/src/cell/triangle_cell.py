@@ -27,4 +27,10 @@ class Triangle(Cell):
 
     def __str__(self):
         neighbour_indices = [n.get_index() for n in self._neighbours]
-        return f"Triangle(index={self._index}, boundary={self.is_boundary()}, neighbours={neighbour_indices})"
+        return (
+    f"Triangle(index={self._index}, "
+    f"boundary={self.is_boundary()}, "
+    f"neighbours={neighbour_indices}, "
+    f"area={self.calculate_area():.4g}, "
+    f"midpoint={self.calculate_midpoint()})"
+)
