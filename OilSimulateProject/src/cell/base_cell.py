@@ -51,6 +51,12 @@ class Point:
         self._x = x
         self._y = y
 
+    def get_x(self):
+        return self._x
+
+    def get_y(self):
+        return self._y
+
 class CellFactory:
     def __init__(self):
         from .line_cell import Line
