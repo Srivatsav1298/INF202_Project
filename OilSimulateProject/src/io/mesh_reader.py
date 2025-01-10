@@ -22,10 +22,12 @@ class Mesh:
                 # skip other cell types
                 pass
 
-    def get_cells(self):
+    @property
+    def cells(self):
         return self._cells
 
-    def get_points(self):
+    @property
+    def points(self):
         return self._points
 
     def find_neighbours(self):

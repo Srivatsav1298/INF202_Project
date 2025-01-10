@@ -13,7 +13,7 @@ def main():
     bay_mesh.find_neighbours()
 
     # Print out each cell
-    for cell in bay_mesh.get_cells():
+    for cell in bay_mesh.cells:
         print(cell)
 
     end_time = time.time()  # End the timer

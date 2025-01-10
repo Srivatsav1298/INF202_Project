@@ -5,5 +5,5 @@ class Line(Cell):
         super().__init__(index, points, mesh, neighbours)
 
     def __str__(self):
-        neighbour_indices = [n.get_index() for n in self._neighbours]
+        neighbour_indices = [n.index for n in self._neighbours]
         return f"Line(index={self._index}, boundary={self.is_boundary()}, neighbours={neighbour_indices})"

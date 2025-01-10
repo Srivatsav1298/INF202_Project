@@ -7,13 +7,16 @@ class Cell(ABC):
         self._mesh = mesh if mesh is not None else ""
         self._neighbours = neighbours if neighbours is not None else []
 
-    def get_index(self):
+    @property
+    def index(self):
         return self._index
 
-    def get_neighbours(self):
+    @property
+    def neighbours(self):
         return self._neighbours
 
-    def get_points(self):
+    @property
+    def points(self):
         return self._points
 
     def store_neighbours(self):
@@ -21,8 +24,8 @@ class Cell(ABC):
         from .triangle_cell import Triangle
 
         self_set = set(self._points)
-        for cell in self._mesh.get_cells():
-            point_set = set(cell.get_points())
+        for cell in self._mesh.cells:
+            point_set = set(cell.points)
             if isinstance(self, Line) and isinstance(cell, Line):
                 # When comparing a line to another line, they only need 1 point in common
                 if len(point_set.intersection(self_set)) == 1:
@@ -51,10 +54,12 @@ class Point:
         self._x = x
         self._y = y
 
-    def get_x(self):
+    @property
+    def x(self):
         return self._x
 
-    def get_y(self):
+    @property
+    def y(self):
         return self._y
 
 class CellFactory:
