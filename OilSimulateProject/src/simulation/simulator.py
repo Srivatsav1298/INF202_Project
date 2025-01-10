@@ -1,4 +1,4 @@
-from ..io.mesh_reader import Mesh
+
 from ..cell.triangle_cell import Triangle
 
 def initialize_oil_spill(mesh, oil_spill_center):

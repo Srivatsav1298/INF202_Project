@@ -22,4 +22,4 @@ def plot_mesh(mesh):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.gca().set_aspect('equal')
-    plt.show(block=False)
+    plt.show()
