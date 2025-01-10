@@ -2,9 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 
 def plot_mesh(mesh):
-    from ..cell.base_cell import Point
     from ..cell.triangle_cell import Triangle
-    from ..io.mesh_reader import Mesh
     points = mesh.points
 
     x = [p.x for p in points]

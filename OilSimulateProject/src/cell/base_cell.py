@@ -21,7 +21,6 @@ class Cell(ABC):
 
     def store_neighbours(self):
         from .line_cell import Line
-        from .triangle_cell import Triangle
 
         self_set = set(self._points)
         for cell in self._mesh.cells:
