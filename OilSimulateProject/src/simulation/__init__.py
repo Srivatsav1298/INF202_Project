@@ -1,1 +1,1 @@
-from .simulator import initialize_oil_spill
+from .simulator import Simulation
