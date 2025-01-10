@@ -2,4 +2,3 @@ meshio
 time
 math
 matplotlib
-numpy

@@ -16,10 +16,9 @@ class Triangle(Cell):
         self._midpoint = Point(x, y)
         return self._midpoint
     
-    def initial_oil_intensity(self):
-        oil_center = (0.35, 0.45)
+    def calculate_oil_intensity(self, oil_spill_center):
         midpoint = self.calculate_midpoint()
-        self._oil_intensity = math.exp(- ((midpoint.x() - oil_center[0])**2 + (midpoint.y() - oil_center[1])**2) / (0.01))
+        self._oil_intensity = math.exp(- ((midpoint.x - oil_spill_center[0])**2 + (midpoint.y - oil_spill_center[1])**2) / (0.01))
         return self._oil_intensity
 
     def calculate_area(self):
@@ -32,6 +31,10 @@ class Triangle(Cell):
             x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2)
         )
         return self._area
+    
+    @property
+    def oil_intensity(self):
+        return self._oil_intensity
 
     def __str__(self):
         neighbour_indices = [n.index for n in self._neighbours]

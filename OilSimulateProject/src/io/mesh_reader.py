@@ -3,6 +3,7 @@ from ..cell.base_cell import Point, CellFactory
 
 class Mesh:
     def __init__(self, file_name):
+        self._file_name = file_name
         msh = meshio.read(file_name)
 
         # Read points (assumes 2D points)
@@ -14,8 +15,8 @@ class Mesh:
         index = 0
         for block in msh.cells:
             if block.type in ("line", "triangle"):
-                for cell_data in block.data:
-                    cell_obj = create_cell(cell_data, block.type, index, self)
+                for cell_points in block.data:
+                    cell_obj = create_cell(cell_points, block.type, index, self)
                     self._cells.append(cell_obj)
                     index += 1
             else:
@@ -31,5 +32,16 @@ class Mesh:
         return self._points
 
     def find_neighbours(self):
-        for cell in self._cells:
+        total_cells = len(self._cells)
+        print_interval = max(1, total_cells // 100)  # Print progress every 1% of cells
+        print(f"Storing neighbours for each cell in {self._file_name}:")
+
+        for i, cell in enumerate(self._cells):
             cell.store_neighbours()
+
+            # Print progress at intervals
+            if i % print_interval == 0 or i == total_cells - 1:
+                progress = (i + 1) / total_cells * 100
+                print(f"Progress: {progress:.2f}% ({i + 1}/{total_cells})", end='\r')
+
+        print("\nDone.")
