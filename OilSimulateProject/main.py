@@ -1,0 +1,27 @@
+import time
+from src.io.mesh_reader import Mesh
+from src.cell.base_cell import Point
+from src.visualization.plotter import plot_mesh
+from src.simulation.simulator import initialize_oil_spill
+
+def main():
+    start_time = time.time()  # Start the timer
+    
+    file_name = "data/mesh/bay.msh"
+    
+    # Create the mesh
+    bay_mesh = Mesh(file_name)
+
+    # Build neighbour relationships
+    #bay_mesh.find_neighbours()
+
+    initialize_oil_spill(bay_mesh, (0.35, 0.45))
+
+    end_time = time.time()  # End the timer
+    elapsed_time = end_time - start_time
+    print(f"\nExecution time: {elapsed_time:.2f} seconds")
+
+    plot_mesh(bay_mesh)
+
+if __name__ == "__main__":
+    main()
