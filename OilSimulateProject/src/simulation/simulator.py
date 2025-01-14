@@ -11,5 +11,3 @@ class Simulation:
                 cell.calculate_oil_intensity(self._oil_spill_center)
             else:
                 pass
-        
-

@@ -6,6 +6,7 @@ class Cell(ABC):
         self._points = points if points is not None else []
         self._mesh = mesh if mesh is not None else ""
         self._neighbours = neighbours if neighbours is not None else []
+        self._edges = []
 
     @property
     def index(self):
@@ -25,14 +26,17 @@ class Cell(ABC):
         self_set = set(self._points)
         for cell in self._mesh.cells:
             point_set = set(cell.points)
+            matching_points = point_set.intersection(self_set)
             if isinstance(self, Line) and isinstance(cell, Line):
                 # When comparing a line to another line, they only need 1 point in common
-                if len(point_set.intersection(self_set)) == 1:
+                if len(matching_points) == 1:
                     self._neighbours.append(cell)
+                    self._edges.append(list(matching_points))
             else:
                 # Every other comparison needs 2 points in common
-                if len(point_set.intersection(self_set)) == 2:
+                if len(matching_points) == 2:
                     self._neighbours.append(cell)
+                    self._edges.append(list(matching_points))
 
     def is_boundary(self):
         from .line_cell import Line

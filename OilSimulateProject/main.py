@@ -12,7 +12,8 @@ def main():
     bay_mesh = Mesh(file_name)
 
     # Build neighbour relationships
-    #bay_mesh.find_neighbours()
+    bay_mesh.find_neighbours()
+    bay_mesh.find_outward_normals()
 
     oil_spill_simulation = Simulation(bay_mesh, (0.35, 0.45))
     oil_spill_simulation.initialize_oil_spill()
