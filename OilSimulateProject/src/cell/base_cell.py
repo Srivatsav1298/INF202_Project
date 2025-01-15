@@ -6,6 +6,10 @@ class Cell(ABC):
         self._points = points if points is not None else []
         self._mesh = mesh if mesh is not None else ""
         self._neighbours = neighbours if neighbours is not None else []
+        self._midpoint = None
+        self._oil_amount = None
+        self._edge_vectors = []
+        self._edge_points = []
 
     @property
     def index(self):
@@ -18,6 +22,14 @@ class Cell(ABC):
     @property
     def points(self):
         return self._points
+    
+    @property
+    def oil_amount(self):
+        return self._oil_amount
+    
+    @property
+    def edge_vectors(self):
+        return self._edge_vectors
 
     def store_neighbours(self):
         from .line_cell import Line
@@ -25,14 +37,20 @@ class Cell(ABC):
         self_set = set(self._points)
         for cell in self._mesh.cells:
             point_set = set(cell.points)
+            matching_points = point_set.intersection(self_set)
+            point_coordinates = [self._mesh.points[i] for i in matching_points]
             if isinstance(self, Line) and isinstance(cell, Line):
                 # When comparing a line to another line, they only need 1 point in common
-                if len(point_set.intersection(self_set)) == 1:
+                if len(matching_points) == 1:
                     self._neighbours.append(cell)
             else:
                 # Every other comparison needs 2 points in common
-                if len(point_set.intersection(self_set)) == 2:
+                if len(matching_points) == 2:
                     self._neighbours.append(cell)
+                    self._edge_vectors.append([
+                    point_coordinates[0].x - point_coordinates[1].x,
+                    point_coordinates[0].y - point_coordinates[1].y])
+                    self._edge_points.append(point_coordinates)
 
     def is_boundary(self):
         from .line_cell import Line
@@ -43,7 +61,7 @@ class Cell(ABC):
         if isinstance(self, Triangle):
             return any(isinstance(neighbor, Line) for neighbor in self._neighbours)
         return False
-
+    
     @abstractmethod
     def __str__(self):
         pass
