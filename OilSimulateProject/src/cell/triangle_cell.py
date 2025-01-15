@@ -5,8 +5,9 @@ import numpy as np
 class Triangle(Cell):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
         super().__init__(index, points, mesh, neighbours)
-        self._area = None
-        self._velocityfield = None
+        self._midpoint = self.calculate_midpoint()
+        self._area = self.calculate_area()
+        self._velocityfield = self.calculate_velocity_field()
         self._outward_normals = []
 
     def calculate_midpoint(self):
@@ -15,11 +16,6 @@ class Triangle(Cell):
         y = sum(p.y for p in point_coordinates) / 3
         self._midpoint = Point(x, y)
         return self._midpoint
-    
-    def calculate_oil_amount(self, oil_spill_center):
-        midpoint = self.calculate_midpoint()
-        self._oil_amount = math.exp(- ((midpoint.x - oil_spill_center[0])**2 + (midpoint.y - oil_spill_center[1])**2) / (0.01))
-        return self._oil_amount
 
     def calculate_area(self):
         point_coordinates = [self._mesh.points[i] for i in self._points]
@@ -33,8 +29,13 @@ class Triangle(Cell):
         
         return self._area
     
+    def calculate_oil_amount(self, oil_spill_center):
+        midpoint = self._midpoint
+        self._oil_amount = math.exp(- ((midpoint.x - oil_spill_center.x)**2 + (midpoint.y - oil_spill_center.y)**2) / (0.01))
+        return self._oil_amount
+
+
     def calculate_velocity_field(self):
-        self.calculate_midpoint()
         x = self._midpoint.x
         y = self._midpoint.y
         self._velocityfield = (y - (0.2*x), -x)
@@ -45,7 +46,7 @@ class Triangle(Cell):
             perp_vector = np.array([-edge[1], edge[0]])
             normal = perp_vector / np.linalg.norm(perp_vector)
 
-            midpoint = np.array([self.calculate_midpoint().x, self.calculate_midpoint().y])
+            midpoint = np.array([self._midpoint.x, self._midpoint.y])
             p = np.array([self._edge_points[i][0].x, self._edge_points[i][0].y])
 
             to_p = p - midpoint
@@ -67,14 +68,22 @@ class Triangle(Cell):
     @property
     def outward_normals(self):
         return self._outward_normals
+    
+    @property
+    def velocityfield(self):
+        return self._velocityfield
+
+    @property
+    def area(self):
+        return self._area
 
     def __str__(self):
         neighbour_indices = [n.index for n in self._neighbours]
-        midpoint = self.calculate_midpoint()
+        midpoint = self._midpoint
         return (
     f"Triangle(index={self._index}, "
     f"boundary={self.is_boundary()}, "
     f"neighbours={neighbour_indices}, "
-    f"area={self.calculate_area():.4g}, "
+    f"area={self.area:.4g}, "
     f"midpoint=({midpoint._x:.4g}, {midpoint._y:.4g}))"
 )

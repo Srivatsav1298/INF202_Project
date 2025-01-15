@@ -6,7 +6,6 @@ class Cell(ABC):
         self._points = points if points is not None else []
         self._mesh = mesh if mesh is not None else ""
         self._neighbours = neighbours if neighbours is not None else []
-        self._midpoint = None
         self._oil_amount = None
         self._edge_vectors = []
         self._edge_points = []

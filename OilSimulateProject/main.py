@@ -1,9 +1,10 @@
 import time
 from src.io.mesh_reader import Mesh
 from src.simulation.simulator import Simulation
+from src.cell.base_cell import Point
 
-oil_spill_center = (0.35, 0.45)
-nSteps = 100
+oil_spill_center = Point(0.35, 0.45)
+nSteps = 50
 tStart = 0
 tEnd = 0.5
 fps = round(nSteps/8)

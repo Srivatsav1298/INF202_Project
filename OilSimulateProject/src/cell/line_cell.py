@@ -4,6 +4,7 @@ class Line(Cell):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
         super().__init__(index, points, mesh, neighbours)
         self._oil_amount = 0
+        self._midpoint = self.calculate_midpoint()
 
     def calculate_midpoint(self):
         point_coordinates = [self._mesh.points[i] for i in self._points]

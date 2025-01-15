@@ -33,10 +33,10 @@ class Simulation:
                     for i, ngh in enumerate(cell.neighbours):
                         if isinstance(ngh, Triangle):
                             delta_t = self._delta_t
-                            v_i = np.array(cell.calculate_velocity_field())
-                            v_ngh = np.array(ngh.calculate_velocity_field())
+                            v_i = np.array(cell.velocityfield)
+                            v_ngh = np.array(ngh.velocityfield)
                             v_avg = 0.5 * (v_i + v_ngh)
-                            A_i = cell.calculate_area()
+                            A_i = cell.area
                             u_i = cell.oil_amount
                             u_ngh = ngh.oil_amount
                             v_vector = cell.outward_normals[i] * np.linalg.norm(cell.edge_vectors[i])
