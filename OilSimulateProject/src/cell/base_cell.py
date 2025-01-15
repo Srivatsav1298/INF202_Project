@@ -63,10 +63,6 @@ class Cell(ABC):
         return False
     
     @abstractmethod
-    def calculate_oil_amount(self):
-        pass
-
-    @abstractmethod
     def __str__(self):
         pass
 
