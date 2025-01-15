@@ -11,27 +11,7 @@ class Cell(ABC):
         self._edge_vectors = []
         self._edge_points = []
 
-    @property
-    def index(self):
-        return self._index
-
-    @property
-    def neighbours(self):
-        return self._neighbours
-
-    @property
-    def points(self):
-        return self._points
-    
-    @property
-    def oil_amount(self):
-        return self._oil_amount
-    
-    @property
-    def edge_vectors(self):
-        return self._edge_vectors
-
-    def store_neighbours(self):
+    def store_neighbours_and_edges(self):
         from .line_cell import Line
 
         self_set = set(self._points)
@@ -62,6 +42,26 @@ class Cell(ABC):
             return any(isinstance(neighbor, Line) for neighbor in self._neighbours)
         return False
     
+    @property
+    def index(self):
+        return self._index
+
+    @property
+    def neighbours(self):
+        return self._neighbours
+
+    @property
+    def points(self):
+        return self._points
+    
+    @property
+    def oil_amount(self):
+        return self._oil_amount
+    
+    @property
+    def edge_vectors(self):
+        return self._edge_vectors
+        
     @abstractmethod
     def __str__(self):
         pass

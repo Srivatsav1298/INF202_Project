@@ -11,6 +11,9 @@ class Simulation:
         self._fps = fps
         self._delta_t = (self._tEnd-self._tStart)/self._nSteps
 
+        self.initialize_oil_spill()
+        self.oil_movement()
+
     def initialize_oil_spill(self):
         from ..cell.triangle_cell import Triangle
         for cell in self._mesh.cells:

@@ -16,13 +16,7 @@ def main():
     # Create the mesh
     bay_mesh = Mesh(file_name)
 
-    # Build neighbour relationships for each cell and related outward normal
-    bay_mesh.find_neighbours()
-    bay_mesh.find_outward_normals()
-
     oil_spill_simulation = Simulation(bay_mesh, oil_spill_center, nSteps, tStart, tEnd, fps)
-    oil_spill_simulation.initialize_oil_spill()
-    oil_spill_simulation.oil_movement()
 
     end_time = time.time()  # End the timer
     elapsed_time = end_time - start_time

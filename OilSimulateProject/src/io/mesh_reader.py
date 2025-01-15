@@ -23,21 +23,16 @@ class Mesh:
                 # skip other cell types
                 pass
 
-    @property
-    def cells(self):
-        return self._cells
+        self.find_neighbours_and_edges()
+        self.find_outward_normals()
 
-    @property
-    def points(self):
-        return self._points
-
-    def find_neighbours(self):
+    def find_neighbours_and_edges(self):
         total_cells = len(self._cells)
         print_interval = max(1, total_cells // 100)  # Print progress every 1% of cells
         print(f"Storing neighbours for each cell in {self._file_name}:")
 
         for i, cell in enumerate(self._cells):
-            cell.store_neighbours()
+            cell.store_neighbours_and_edges()
 
             # Print progress at intervals
             if i % print_interval == 0 or i == total_cells - 1:
@@ -56,3 +51,11 @@ class Mesh:
                 cell.store_outward_normals()
 
         print(f"Done.")
+
+    @property
+    def cells(self):
+        return self._cells
+
+    @property
+    def points(self):
+        return self._points
