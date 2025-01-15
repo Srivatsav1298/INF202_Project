@@ -12,8 +12,10 @@ class Simulation:
         self._delta_t = (self._tEnd-self._tStart)/self._nSteps
 
     def initialize_oil_spill(self):
+        from ..cell.triangle_cell import Triangle
         for cell in self._mesh.cells:
-            cell.calculate_oil_amount(self._oil_spill_center)
+            if isinstance(cell, Triangle):
+                cell.calculate_oil_amount(self._oil_spill_center)
 
     def oil_movement(self):
         from ..cell.triangle_cell import Triangle
