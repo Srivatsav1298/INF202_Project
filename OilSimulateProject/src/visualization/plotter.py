@@ -1,23 +1,43 @@
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
+import imageio
+import os
 
-def plot_mesh(mesh):
-    from ..cell.triangle_cell import Triangle
-    points = mesh.points
+class Animation():
+    def __init__(self, mesh=None, fps=24):
+        self._mesh = mesh
+        self._points = self._mesh.points
+        self._x = [p.x for p in self._points]
+        self._y = [p.y for p in self._points]
+        self._frame_count = 0
+        self._fps = fps
+        self._output_dir = "frames"
 
-    x = [p.x for p in points]
-    y = [p.y for p in points]
+        if not os.path.exists(self._output_dir):
+            os.makedirs(self._output_dir)        
 
-    triangles = [cell.points for cell in mesh.cells if isinstance(cell, Triangle)]
-  
-    intensity = [cell.oil_intensity for cell in mesh.cells if isinstance(cell, Triangle)]
-
-    triang = tri.Triangulation(x, y, triangles)
+    def render_frame(self, frame_index=None):
+        from ..cell.triangle_cell import Triangle
+        triangles = [cell.points for cell in self._mesh.cells if isinstance(cell, Triangle)]
     
-    plt.tripcolor(triang, facecolors=intensity, cmap='viridis', edgecolors='k')
-    plt.colorbar(label='Intensity')
-    plt.title('2D Computational Mesh with Triangle-Specific Intensity')
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.gca().set_aspect('equal')
-    plt.show()
+        oil_amount = [cell.oil_amount for cell in self._mesh.cells if isinstance(cell, Triangle)]
+
+        triang = tri.Triangulation(self._x, self._y, triangles)
+        
+        plt.tripcolor(triang, facecolors=oil_amount, cmap='viridis', edgecolors='k')
+        plt.colorbar(label='Oil Amount')
+        plt.title('Oil Spill Simulation')
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.gca().set_aspect('equal')
+
+        frame_path = os.path.join(self._output_dir, f'frame_{frame_index:04d}.png')
+        plt.savefig(frame_path)  # Save the frame as a PNG file
+        plt.close()
+        
+        self._frame_count += 1
+
+    def create_gif(self, gif_filename='animation.gif'):
+        frames = sorted([os.path.join(self._output_dir, f) for f in os.listdir(self._output_dir) if f.endswith('.png')])
+        images = [imageio.imread(frame) for frame in frames]
+        imageio.mimsave(gif_filename, images, fps=self._fps)
