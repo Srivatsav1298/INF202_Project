@@ -39,18 +39,11 @@ class Mesh:
                 progress = (i + 1) / total_cells * 100
                 print(f"Progress: {progress:.2f}% ({i + 1}/{total_cells})", end='\r')
 
-        print("\nDone.")
+        print("\nDone.\n")
 
     def find_outward_normals(self):
-        from ..cell.triangle_cell import Triangle
-
-        print(f"Storing outward normals for each triangle in {self._file_name}:")
-
         for cell in self._cells:
-            if isinstance(cell, Triangle):
-                cell.store_outward_normals()
-
-        print(f"Done.")
+            cell.store_outward_normals()
 
     @property
     def cells(self):

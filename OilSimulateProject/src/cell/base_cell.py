@@ -10,26 +10,17 @@ class Cell(ABC):
         self._edge_vectors = []
         self._edge_points = []
 
-    def store_neighbours_and_edges(self):
-        from .line_cell import Line
+    @abstractmethod
+    def calculate_midpoint(self):
+        pass
 
-        self_set = set(self._points)
-        for cell in self._mesh.cells:
-            point_set = set(cell.points)
-            matching_points = point_set.intersection(self_set)
-            point_coordinates = [self._mesh.points[i] for i in matching_points]
-            if isinstance(self, Line) and isinstance(cell, Line):
-                # When comparing a line to another line, they only need 1 point in common
-                if len(matching_points) == 1:
-                    self._neighbours.append(cell)
-            else:
-                # Every other comparison needs 2 points in common
-                if len(matching_points) == 2:
-                    self._neighbours.append(cell)
-                    self._edge_vectors.append([
-                    point_coordinates[0].x - point_coordinates[1].x,
-                    point_coordinates[0].y - point_coordinates[1].y])
-                    self._edge_points.append(point_coordinates)
+    @abstractmethod
+    def store_neighbours_and_edges(self):
+        pass
+
+    @abstractmethod
+    def store_outward_normals(self):
+        pass
 
     def is_boundary(self):
         from .line_cell import Line
@@ -64,19 +55,6 @@ class Cell(ABC):
     @abstractmethod
     def __str__(self):
         pass
-
-class Point:
-    def __init__(self, x, y):
-        self._x = x
-        self._y = y
-
-    @property
-    def x(self):
-        return self._x
-
-    @property
-    def y(self):
-        return self._y
 
 class CellFactory:
     def __init__(self):

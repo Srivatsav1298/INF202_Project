@@ -10,6 +10,20 @@ class Triangle(Cell):
         self._velocityfield = self.calculate_velocity_field()
         self._outward_normals = []
 
+    def store_neighbours_and_edges(self):
+        self_set = set(self._points)
+        for cell in self._mesh.cells:
+            point_set = set(cell.points)
+            matching_points = point_set.intersection(self_set)
+            point_coordinates = [self._mesh.points[i] for i in matching_points]
+            
+            if len(matching_points) == 2:
+                self._neighbours.append(cell)
+                self._edge_vectors.append([
+                point_coordinates[0].x - point_coordinates[1].x,
+                point_coordinates[0].y - point_coordinates[1].y])
+                self._edge_points.append(point_coordinates)    
+
     def calculate_midpoint(self):
         from ..io.mesh_reader import Point
         point_coordinates = [self._mesh.points[i] for i in self._points]
