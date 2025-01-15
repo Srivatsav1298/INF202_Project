@@ -1,5 +1,5 @@
 import meshio
-from ..cell.base_cell import Point, CellFactory
+from ..cell.base_cell import CellFactory
 
 class Mesh:
     def __init__(self, file_name):
@@ -59,3 +59,16 @@ class Mesh:
     @property
     def points(self):
         return self._points
+    
+class Point:
+    def __init__(self, x, y):
+        self._x = x
+        self._y = y
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y

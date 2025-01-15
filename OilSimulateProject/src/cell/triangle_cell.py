@@ -1,4 +1,4 @@
-from .base_cell import Cell, Point
+from .base_cell import Cell
 import math
 import numpy as np
 
@@ -11,6 +11,7 @@ class Triangle(Cell):
         self._outward_normals = []
 
     def calculate_midpoint(self):
+        from ..io.mesh_reader import Point
         point_coordinates = [self._mesh.points[i] for i in self._points]
         x = sum(p.x for p in point_coordinates) / 3
         y = sum(p.y for p in point_coordinates) / 3

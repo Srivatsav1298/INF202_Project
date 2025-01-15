@@ -9,7 +9,10 @@ class Simulation:
         self._tStart = tStart
         self._tEnd = tEnd
         self._fps = fps
-        self._delta_t = (self._tEnd-self._tStart)/self._nSteps
+        self._delta_t = self._tEnd/self._nSteps
+
+        # Finding first frame when tStart is not 0
+        self._nStart = round((self._tStart/self._tEnd) * self._nSteps)
 
         self.initialize_oil_spill()
         self.oil_movement()
@@ -24,6 +27,10 @@ class Simulation:
         from ..cell.triangle_cell import Triangle
 
         oil_animation = Animation(self._mesh, self._fps)
+
+        # Render the first frame if tStart is 0
+        if self._tStart == 0:
+            oil_animation.render_frame(0)
 
         for n in range(self._nSteps):
             print(f"Calculating for t = {n*self._delta_t:.4g}", end='\r')
@@ -44,7 +51,12 @@ class Simulation:
                             f = -((delta_t/A_i)*self.g(u_i, u_ngh, v_vector, v_avg))
                             oil_over_each_facet.append(f)
                     cell.update_oil_amount(oil_over_each_facet)
-            oil_animation.render_frame(n)
+
+            # logic for rendering frames based on tStart
+            if self._tStart == 0:
+                oil_animation.render_frame(n+1)
+            elif n >= self._nStart:
+                oil_animation.render_frame(n-self._nStart)
         
         oil_animation.create_gif()
 
