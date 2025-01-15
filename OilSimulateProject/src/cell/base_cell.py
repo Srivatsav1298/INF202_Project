@@ -61,6 +61,10 @@ class Cell(ABC):
         if isinstance(self, Triangle):
             return any(isinstance(neighbor, Line) for neighbor in self._neighbours)
         return False
+    
+    @abstractmethod
+    def calculate_oil_amount(self):
+        pass
 
     @abstractmethod
     def __str__(self):

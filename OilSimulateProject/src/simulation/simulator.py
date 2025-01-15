@@ -2,12 +2,13 @@ import numpy as np
 from ..visualization.plotter import Animation
 
 class Simulation:
-    def __init__(self, mesh, oil_spill_center):
+    def __init__(self, mesh, oil_spill_center, nSteps, tStart, tEnd, fps):
         self._mesh = mesh
         self._oil_spill_center = oil_spill_center
-        self._nSteps = 200
-        self._tStart = 0
-        self._tEnd = 0.5
+        self._nSteps = nSteps
+        self._tStart = tStart
+        self._tEnd = tEnd
+        self._fps = fps
         self._delta_t = (self._tEnd-self._tStart)/self._nSteps
 
     def initialize_oil_spill(self):
@@ -17,7 +18,7 @@ class Simulation:
     def oil_movement(self):
         from ..cell.triangle_cell import Triangle
 
-        oil_animation = Animation(self._mesh)
+        oil_animation = Animation(self._mesh, self._fps)
 
         for n in range(self._nSteps):
             print(f"Calculating for t = {n*self._delta_t:.4g}", end='\r')

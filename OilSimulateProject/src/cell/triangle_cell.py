@@ -1,6 +1,7 @@
 from .base_cell import Cell, Point
 import math
 import numpy as np
+
 class Triangle(Cell):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
         super().__init__(index, points, mesh, neighbours)

@@ -1,5 +1,4 @@
 from .base_cell import Cell, Point
-import math
 
 class Line(Cell):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
@@ -12,7 +11,7 @@ class Line(Cell):
         self._midpoint = Point(x, y)
         return self._midpoint
 
-    def calculate_oil_amount(self, oil_spill_center):
+    def calculate_oil_amount(self):
         self._oil_amount = 0
         return self._oil_amount
 

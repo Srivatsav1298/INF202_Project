@@ -4,13 +4,14 @@ import imageio
 import os
 
 class Animation():
-    def __init__(self, mesh=None, output_dir="frames"):
+    def __init__(self, mesh=None, fps=24):
         self._mesh = mesh
         self._points = self._mesh.points
         self._x = [p.x for p in self._points]
         self._y = [p.y for p in self._points]
         self._frame_count = 0
-        self._output_dir = output_dir
+        self._fps = fps
+        self._output_dir = "frames"
 
         if not os.path.exists(self._output_dir):
             os.makedirs(self._output_dir)        
@@ -36,7 +37,7 @@ class Animation():
         
         self._frame_count += 1
 
-    def create_gif(self, gif_filename='animation.gif', fps=24):
+    def create_gif(self, gif_filename='animation.gif'):
         frames = sorted([os.path.join(self._output_dir, f) for f in os.listdir(self._output_dir) if f.endswith('.png')])
         images = [imageio.imread(frame) for frame in frames]
-        imageio.mimsave(gif_filename, images, fps=fps)
+        imageio.mimsave(gif_filename, images, fps=self._fps)
