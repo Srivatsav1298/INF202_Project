@@ -30,6 +30,10 @@ class Line(Cell):
         y = sum(p.y for p in point_coordinates) / 2
         self._midpoint = Point(x, y)
         return self._midpoint
+    
+    @property
+    def midpoint(self):
+        return self._midpoint
 
     def __str__(self):
         neighbour_indices = [n.index for n in self._neighbours]

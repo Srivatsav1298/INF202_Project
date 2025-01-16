@@ -16,7 +16,7 @@ class Triangle(Cell):
             point_set = set(cell.points)
             matching_points = point_set.intersection(self_set)
             point_coordinates = [self._mesh.points[i] for i in matching_points]
-            
+
             if len(matching_points) == 2:
                 self._neighbours.append(cell)
                 self._edge_vectors.append([
@@ -76,6 +76,10 @@ class Triangle(Cell):
         new_oil_amount = self._oil_amount + oil_loss
         self._oil_amount = new_oil_amount
     
+    @property
+    def midpoint(self):
+        return self._midpoint
+
     @property
     def oil_amount(self):
         return self._oil_amount

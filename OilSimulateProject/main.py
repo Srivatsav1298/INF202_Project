@@ -3,6 +3,7 @@ from src.io.mesh_reader import Mesh, Point
 from src.simulation.simulator import Simulation
 
 oil_spill_center = Point(0.35, 0.45)
+fishing_grounds = ((0.0, 0.45), (0.0, 0.2))
 nSteps = 100 # number of simulation steps from t = 0 to tEnd
 tStart = 0 # start time of gif
 tEnd = 0.5 # end time of gif and simulation
@@ -16,7 +17,7 @@ def main():
     # Create the mesh
     bay_mesh = Mesh(file_name)
 
-    oil_spill_simulation = Simulation(bay_mesh, oil_spill_center, nSteps, tStart, tEnd, fps)
+    oil_spill_simulation = Simulation(bay_mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, fps)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
