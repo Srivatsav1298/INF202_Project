@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+import logging
 
+logger = logging.getLogger(__name__)
 class Cell(ABC):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
+        logger.debug(f"Initializing Cell with index {index}")
         self._index = index
         self._points = points if points is not None else []
         self._mesh = mesh if mesh is not None else ""

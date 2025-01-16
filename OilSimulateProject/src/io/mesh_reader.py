@@ -1,10 +1,14 @@
 import meshio
 from ..cell.base_cell import CellFactory
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Mesh:
     def __init__(self, file_name):
         if not os.path.exists(file_name):
+            logger.error(f"Mesh file '{file_name}' not found.")
             raise FileNotFoundError(f"Mesh file '{file_name}' not found.")
         self._file_name = file_name
         msh = meshio.read(file_name)
