@@ -10,7 +10,7 @@ def load_config(file_path):
 
 oil_spill_center = Point(0.35, 0.45)
 fishing_grounds = ((0.0, 0.45), (0.0, 0.2))
-nSteps = 240 # number of simulation steps from t = 0 to tEnd
+nSteps = 70 # number of simulation steps from t = 0 to tEnd
 tStart = 0 # start time of gif
 tEnd = 0.5 # end time of gif and simulation
 fps = round(nSteps / 8*((tEnd-tStart)/tEnd)) # this formula gives an ideal speed for the gif

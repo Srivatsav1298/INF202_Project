@@ -66,7 +66,7 @@ class Simulation:
     def check_fishing_grounds(self, n):
         total_oil_in_fishing_grounds = 0
         for cell in self._mesh.cells:
-            x, y = cell.midpoint.x, cell.midpoint.y
+            x, y = cell.midpoint[0], cell.midpoint[1]
             x_min, x_max = self._fishing_grounds[0]
             y_min, y_max = self._fishing_grounds[1]
 

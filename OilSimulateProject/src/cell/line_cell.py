@@ -24,11 +24,10 @@ class Line(Cell):
         pass
 
     def calculate_midpoint(self):
-        from ..io.mesh_reader import Point
         point_coordinates = [self._mesh.points[i] for i in self._points]
         x = sum(p.x for p in point_coordinates) / 2
         y = sum(p.y for p in point_coordinates) / 2
-        self._midpoint = Point(x, y)
+        self._midpoint = (x, y)
         return self._midpoint
     
     def is_boundary(self):
