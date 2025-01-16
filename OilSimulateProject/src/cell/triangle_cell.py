@@ -7,7 +7,7 @@ class Triangle(Cell):
         super().__init__(index, points, mesh, neighbours)
         self._midpoint = self.calculate_midpoint()
         self._area = self.calculate_area()
-        self._velocityfield = self.calculate_velocity_field()
+        self._velocity_field = self.calculate_velocity_field()
         self._outward_normals = []
 
     def store_neighbours_and_edges(self):
@@ -48,12 +48,11 @@ class Triangle(Cell):
         self._oil_amount = math.exp(- ((midpoint[0] - oil_spill_center[0])**2 + (midpoint[1] - oil_spill_center[1])**2) / (0.01))
         return self._oil_amount
 
-
     def calculate_velocity_field(self):
         x = self._midpoint[0]
         y = self._midpoint[1]
-        self._velocityfield = (y - (0.2*x), -x)
-        return self._velocityfield
+        self._velocity_field = (y - (0.2*x), -x)
+        return self._velocity_field
 
     def store_outward_normals(self):
         for i, edge in enumerate(self._edge_vectors):
@@ -94,8 +93,8 @@ class Triangle(Cell):
         return self._outward_normals
     
     @property
-    def velocityfield(self):
-        return self._velocityfield
+    def velocity_field(self):
+        return self._velocity_field
 
     @property
     def area(self):

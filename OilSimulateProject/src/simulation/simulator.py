@@ -25,42 +25,51 @@ class Simulation:
                 cell.calculate_oil_amount(self._oil_spill_center)
 
     def run_simulation(self):
-        oil_animation = Animation(self._mesh, self._fps)
+        oil_animation = Animation(self._mesh, self._fps, self._fishing_grounds)
 
         # Render the first frame if tStart is 0
         if self._tStart == 0:
-            oil_animation.render_frame(0)
+            oil_animation.render_frame(0, 0, 0)
 
         for n in range(self._nSteps):
-            self.oil_movement(n)
-            self.check_fishing_grounds(n)
+            self.oil_movement()
+            total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
+            current_time = n * self._delta_t
 
             # logic for rendering first frame based on tStart
             if self._tStart == 0:
-                oil_animation.render_frame(n+1)
+                oil_animation.render_frame(
+                    frame_index = n+1,
+                    time_val = current_time,
+                    total_oil = total_oil_in_fishing_grounds
+                    )
             elif n >= self._nStart:
-                oil_animation.render_frame(n-self._nStart)
+                oil_animation.render_frame(
+                    frame_index = n-self._nStart,
+                    time_val = current_time,
+                    total_oil = total_oil_in_fishing_grounds     
+                    )
         
         oil_animation.create_gif()
 
-    def oil_movement(self, n):
+    def oil_movement(self):
         from ..cell.triangle_cell import Triangle
         for cell in self._mesh.cells:
             oil_over_each_facet = []
             if isinstance(cell, Triangle):
                 for i, ngh in enumerate(cell.neighbours):
-                    if isinstance(ngh, Triangle):
-                        delta_t = self._delta_t
-                        v_i = np.array(cell.velocityfield)
-                        v_ngh = np.array(ngh.velocityfield)
-                        v_avg = 0.5 * (v_i + v_ngh)
-                        A_i = cell.area
-                        u_i = cell.oil_amount
-                        u_ngh = ngh.oil_amount
-                        v_vector = cell.outward_normals[i] * np.linalg.norm(cell.edge_vectors[i])
-                            
-                        f = -((delta_t/A_i)*self.g(u_i, u_ngh, v_vector, v_avg))
-                        oil_over_each_facet.append(f)
+                    v_i = np.array(cell.velocity_field)
+                    delta_t = self._delta_t
+                    A_i = cell.area
+                    u_i = cell.oil_amount
+                    u_ngh = ngh.oil_amount
+                    v_ngh = np.array(ngh.velocity_field)
+                    v_avg = 0.5 * (v_i + v_ngh)
+
+                    v_vector = cell.outward_normals[i] * np.linalg.norm(cell.edge_vectors[i])
+                        
+                    f = -((delta_t/A_i)*self.g(u_i, u_ngh, v_vector, v_avg))
+                    oil_over_each_facet.append(f)
                 cell.update_oil_amount(oil_over_each_facet)
 
     def check_fishing_grounds(self, n):
@@ -74,6 +83,8 @@ class Simulation:
                 total_oil_in_fishing_grounds += cell.oil_amount
         
         print(f"Oil in fishing grounds at t = {n*self._delta_t:.4g}: {total_oil_in_fishing_grounds:.4g}")
+        return total_oil_in_fishing_grounds
+
 
     def g(self, u_i, u_ngh, v_vector, v_avg):
         dot_product = np.dot(v_vector, v_avg)

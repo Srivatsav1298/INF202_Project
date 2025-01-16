@@ -15,6 +15,10 @@ class Cell(ABC):
         pass
 
     @abstractmethod
+    def calculate_velocity_field(self):
+        pass
+
+    @abstractmethod
     def store_neighbours_and_edges(self):
         pass
 

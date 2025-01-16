@@ -1,24 +1,29 @@
-# plotter.py
-
 import io
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
+import matplotlib.patches as patches
 from PIL import Image
 
 class Animation:
-    def __init__(self, mesh=None, fps=24):
+    def __init__(self, mesh=None, fps=24, fishing_grounds=[[0.0, 0.0], [0.0, 0.0]]):
         self._mesh = mesh
         self._points = self._mesh.points
         self._x = [p.x for p in self._points]
         self._y = [p.y for p in self._points]
+        self._x_min, self._x_max = fishing_grounds[0]
+        self._y_min, self._y_max = fishing_grounds[1]
         self._frame_count = 0
         self._fps = fps
-        self._frames = []  # Store frames in-memory
+        self._frames = []  # in-memory frames
 
-    def render_frame(self, frame_index=None):
+    def render_frame(self, frame_index=None, time_val=0.0, total_oil=0.0):
         """
         Renders a single frame in-memory as a Pillow Image
         and appends it to the list of frames.
+        
+        :param frame_index: An integer index for the frame.
+        :param time_val: The current simulation time (float).
+        :param total_oil: Total oil in fishing grounds at this time (float).
         """
         from ..cell.triangle_cell import Triangle
 
@@ -29,12 +34,31 @@ class Animation:
         # Create the triangulation
         triang = tri.Triangulation(self._x, self._y, triangles)
 
+        width = self._x_max - self._x_min
+        height = self._y_max - self._y_min
+
+        fishing_rectangle = patches.Rectangle(
+            (self._x_min, self._y_min), #bottomleft corner
+            width,
+            height,
+            fill = False,
+            edgecolor = "red",
+            linewidth = 1
+        )
+
         # Plot the frame
         fig, ax = plt.subplots()
         tpc = ax.tripcolor(triang, facecolors=oil_amount, cmap='viridis', edgecolors='k')
         fig.colorbar(tpc, label='Oil Amount')
 
-        ax.set_title('Oil Spill Simulation')
+        # NEW: Add time and total oil to the plot title
+        ax.set_title(
+            "Oil Spill Simulation\n"
+            f"Time = {time_val:.2f} s | Oil in Fishing Grounds = {total_oil:.2f}"
+        )
+
+        ax.add_patch(fishing_rectangle)
+
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_aspect('equal')
@@ -47,23 +71,16 @@ class Animation:
         # Rewind buffer, open in Pillow
         buffer.seek(0)
         image = Image.open(buffer)
+        image.load()   # force-load into memory
+        buffer.close() # now safe to close buffer
 
-        # Force-load the image data into memory now
-        # so it doesn't rely on the buffer later.
-        image.load()
-
-        # You can now safely close the buffer
-        buffer.close()
-
-        # Add the loaded image to frames
         self._frames.append(image)
-
         self._frame_count += 1
 
     def create_gif(self, gif_filename='animation.gif'):
         """
         Creates a GIF from the in-memory list of frames.
-        The first frame is used as the "base" frame, and the rest are appended.
+        The first frame is used as the 'base' frame, and the rest are appended.
         """
         if not self._frames:
             print("No frames to create GIF.")
