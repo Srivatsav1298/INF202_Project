@@ -11,4 +11,6 @@ borders = [ [0.0, 0.45], [0.0, 0.2] ] # define where fish are located
 logName = "log" # name of the log file created
 
 [IO] 
-writeFrequency = 0 # Frequency of output video. If not provided, no video is recorded. restartFile "input/solution.txt" # Restart file must be provided if start time is provided.
+# Frequency of output video. If not provided, no video is recorded.
+writeFrequency = 15
+# restartFile = "solutions/solution.txt" # Restart file must be provided if start time is provided.

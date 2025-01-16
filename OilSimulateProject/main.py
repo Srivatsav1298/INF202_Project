@@ -21,7 +21,11 @@ oil_spill_center = config['geometry']['oilSpillCenter']
 fishing_grounds = config['geometry']['borders']
 log_name = config['geometry']['logName']
 
-fps = config['IO']['writeFrequency']
+write_frequency = config["IO"].get("writeFrequency", None)  # Default to None if not provided
+if write_frequency is None:
+    print("No write frequency specified, skipping video output.")
+else:
+    print(f"Write frequency: {write_frequency}")
 
 def main():
     start_time = time.time()
@@ -31,7 +35,7 @@ def main():
     # Create the mesh
     mesh = Mesh(file_path)
 
-    oil_spill_simulation = Simulation(mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, fps)
+    oil_spill_simulation = Simulation(mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, write_frequency)
 
     end_time = time.time()
     elapsed_time = end_time - start_time

@@ -25,7 +25,7 @@ class Simulation:
                 cell.calculate_oil_amount(self._oil_spill_center)
 
     def run_simulation(self):
-        if self._fps > 0:
+        if self._fps is not None:
             oil_animation = Animation(self._mesh, self._fps, self._fishing_grounds)
             
             # Render the first frame if tStart is 0
@@ -38,20 +38,20 @@ class Simulation:
             current_time = n * self._delta_t
 
             # logic for rendering first frame based on tStart
-            if (self._tStart == 0) and (self._fps > 0):
+            if (self._tStart == 0) and (self._fps is not None):
                 oil_animation.render_frame(
                     frame_index = n+1,
                     time_val = current_time,
                     total_oil = total_oil_in_fishing_grounds
                     )
-            elif (n >= self._nStart) and (self._fps > 0):
+            elif (n >= self._nStart) and (self._fps is not None):
                 oil_animation.render_frame(
                     frame_index = n-self._nStart,
                     time_val = current_time,
                     total_oil = total_oil_in_fishing_grounds     
                     )
         
-        if self._fps > 0:
+        if self._fps is not None:
             oil_animation.create_gif()
 
     def oil_movement(self):
