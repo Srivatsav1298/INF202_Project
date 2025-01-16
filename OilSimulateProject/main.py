@@ -1,32 +1,45 @@
 import time
+import tomllib
 from src.io.mesh_reader import Mesh
 from src.simulation.simulator import Simulation
 
-oil_spill_center = (0.35, 0.45)
-nSteps = 100
-tStart = 0
-tEnd = 0.5
-fps = round(nSteps/8)
+def load_config(filename):
+    with open(filename, 'rb') as f:
+        config = tomllib.load(f)
+    return config
+
+config = load_config("config_files/config.toml")
+
+# Accessing settings
+nSteps = config['settings']['nSteps']
+tStart = config['settings']['tStart']
+tEnd = config['settings']['tEnd']
+
+# Accessing geometry
+mesh_name = config['geometry']['meshName']
+oil_spill_center = config['geometry']['oilSpillCenter']
+fishing_grounds = config['geometry']['borders']
+log_name = config['geometry']['logName']
+
+write_frequency = config["IO"].get("writeFrequency", None)  # Default to None if not provided
+if write_frequency is None:
+    print("No write frequency specified, skipping video output.")
+else:
+    print(f"Write frequency: {write_frequency}")
 
 def main():
-    start_time = time.time()  # Start the timer
+    start_time = time.time()
     
-    file_name = "data/mesh/bay.msh"
-    
+    file_path = f"data/mesh/{mesh_name}"
+
     # Create the mesh
-    bay_mesh = Mesh(file_name)
+    mesh = Mesh(file_path)
 
-    # Build neighbour relationships for each cell and related outward normal
-    bay_mesh.find_neighbours()
-    bay_mesh.find_outward_normals()
+    oil_spill_simulation = Simulation(mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, write_frequency)
 
-    oil_spill_simulation = Simulation(bay_mesh, oil_spill_center, nSteps, tStart, tEnd, fps)
-    oil_spill_simulation.initialize_oil_spill()
-    oil_spill_simulation.oil_movement()
-
-    end_time = time.time()  # End the timer
+    end_time = time.time()
     elapsed_time = end_time - start_time
-    print(f"\nExecution time: {elapsed_time:.2f} seconds")
+    print(f"\n\nExecution time: {elapsed_time:.2f} seconds")
 
 if __name__ == "__main__":
     main()

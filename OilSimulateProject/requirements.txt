@@ -4,3 +4,4 @@ math
 matplotlib
 numpy
 imageio
+toml
