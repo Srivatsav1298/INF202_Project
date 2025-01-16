@@ -31,6 +31,9 @@ class Line(Cell):
         self._midpoint = Point(x, y)
         return self._midpoint
     
+    def is_boundary(self):
+        return True  
+    
     @property
     def midpoint(self):
         return self._midpoint

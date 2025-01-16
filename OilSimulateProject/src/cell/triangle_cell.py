@@ -75,6 +75,12 @@ class Triangle(Cell):
         oil_loss = sum(oil_over_each_facet)
         new_oil_amount = self._oil_amount + oil_loss
         self._oil_amount = new_oil_amount
+
+    def is_boundary(self):
+        from .line_cell import Line
+        if isinstance(self, Triangle):
+            return any(isinstance(neighbor, Line) for neighbor in self._neighbours)
+        return False
     
     @property
     def midpoint(self):

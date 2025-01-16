@@ -22,15 +22,9 @@ class Cell(ABC):
     def store_outward_normals(self):
         pass
 
+    @abstractmethod
     def is_boundary(self):
-        from .line_cell import Line
-        from .triangle_cell import Triangle
-
-        if isinstance(self, Line):
-            return True
-        if isinstance(self, Triangle):
-            return any(isinstance(neighbor, Line) for neighbor in self._neighbours)
-        return False
+        pass
     
     @property
     def index(self):
@@ -66,4 +60,6 @@ class CellFactory:
         }
 
     def __call__(self, cell, cell_type, index, mesh):
+        if cell_type not in self._cell_types:
+            raise ValueError(f"Unknown cell type: {cell_type}. Supported types are: {list(self._cell_types.keys())}")
         return self._cell_types[cell_type](index, cell, mesh)
