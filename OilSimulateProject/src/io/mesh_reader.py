@@ -1,8 +1,11 @@
 import meshio
 from ..cell.base_cell import Point, CellFactory
+import os
 
 class Mesh:
     def __init__(self, file_name):
+        if not os.path.exists(file_name):
+            raise FileNotFoundError(f"Mesh file '{file_name}' not found.")
         self._file_name = file_name
         msh = meshio.read(file_name)
 
