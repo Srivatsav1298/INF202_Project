@@ -48,13 +48,13 @@ class Animation:
 
         # Plot the frame
         fig, ax = plt.subplots()
-        tpc = ax.tripcolor(triang, facecolors=oil_amount, cmap='viridis', edgecolors='k')
+        tpc = ax.tripcolor(triang, facecolors=oil_amount, cmap='viridis', edgecolors='k', vmin=0, vmax=1)
         fig.colorbar(tpc, label='Oil Amount')
 
-        # NEW: Add time and total oil to the plot title
+        # Add time and total oil to the plot title
         ax.set_title(
             "Oil Spill Simulation\n"
-            f"Time = {time_val:.2f} s | Oil in Fishing Grounds = {total_oil:.2f}"
+            f"Time = {time_val:.2f} | Oil in Fishing Grounds = {total_oil:.2f}"
         )
 
         ax.add_patch(fishing_rectangle)
@@ -83,7 +83,7 @@ class Animation:
         The first frame is used as the 'base' frame, and the rest are appended.
         """
         if not self._frames:
-            print("No frames to create GIF.")
+            print("\n\nNo frames to create GIF.")
             return
 
         # Use the first frame as the base
@@ -98,4 +98,4 @@ class Animation:
             loop=0
         )
 
-        print(f"GIF saved as {gif_filename}")
+        print(f"\n\nGIF saved as {gif_filename}")

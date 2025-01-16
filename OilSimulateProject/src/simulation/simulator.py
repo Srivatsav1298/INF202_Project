@@ -25,11 +25,12 @@ class Simulation:
                 cell.calculate_oil_amount(self._oil_spill_center)
 
     def run_simulation(self):
-        oil_animation = Animation(self._mesh, self._fps, self._fishing_grounds)
-
-        # Render the first frame if tStart is 0
-        if self._tStart == 0:
-            oil_animation.render_frame(0, 0, 0)
+        if self._fps > 0:
+            oil_animation = Animation(self._mesh, self._fps, self._fishing_grounds)
+            
+            # Render the first frame if tStart is 0
+            if (self._tStart == 0):
+                oil_animation.render_frame(0, 0, 0)
 
         for n in range(self._nSteps):
             self.oil_movement()
@@ -37,20 +38,21 @@ class Simulation:
             current_time = n * self._delta_t
 
             # logic for rendering first frame based on tStart
-            if self._tStart == 0:
+            if (self._tStart == 0) and (self._fps > 0):
                 oil_animation.render_frame(
                     frame_index = n+1,
                     time_val = current_time,
                     total_oil = total_oil_in_fishing_grounds
                     )
-            elif n >= self._nStart:
+            elif (n >= self._nStart) and (self._fps > 0):
                 oil_animation.render_frame(
                     frame_index = n-self._nStart,
                     time_val = current_time,
                     total_oil = total_oil_in_fishing_grounds     
                     )
         
-        oil_animation.create_gif()
+        if self._fps > 0:
+            oil_animation.create_gif()
 
     def oil_movement(self):
         from ..cell.triangle_cell import Triangle
@@ -82,7 +84,7 @@ class Simulation:
             if x_min <= x <= x_max and y_min <= y <= y_max:
                 total_oil_in_fishing_grounds += cell.oil_amount
         
-        print(f"Oil in fishing grounds at t = {n*self._delta_t:.4g}: {total_oil_in_fishing_grounds:.4g}")
+        print(f"Oil in fishing grounds at t = {n*self._delta_t:.3f}: {total_oil_in_fishing_grounds:.4g}", end='\r')
         return total_oil_in_fishing_grounds
 
 

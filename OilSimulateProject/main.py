@@ -4,11 +4,11 @@ from src.io.mesh_reader import Mesh
 from src.simulation.simulator import Simulation
 
 def load_config(filename):
-    with open(filename, 'rb') as f:  # Use 'r' if using the `toml` library
-        config = tomllib.load(f)  # Replace with `toml.load(f)` if using `toml`
+    with open(filename, 'rb') as f:
+        config = tomllib.load(f)
     return config
 
-config = load_config("config/config.toml")  # Path to your TOML file
+config = load_config("config_files/config.toml")
 
 # Accessing settings
 nSteps = config['settings']['nSteps']
@@ -35,7 +35,7 @@ def main():
 
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print(f"\nExecution time: {elapsed_time:.2f} seconds")
+    print(f"\n\nExecution time: {elapsed_time:.2f} seconds")
 
 if __name__ == "__main__":
     main()
