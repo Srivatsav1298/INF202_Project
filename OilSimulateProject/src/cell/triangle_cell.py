@@ -1,26 +1,35 @@
-from .base_cell import Cell, Point
+from .base_cell import Cell
 import math
 import numpy as np
 
 class Triangle(Cell):
     def __init__(self, index, points=None, mesh=None, neighbours=None):
         super().__init__(index, points, mesh, neighbours)
-        self._area = None
-        self._velocityfield = None
+        self._midpoint = self.calculate_midpoint()
+        self._area = self.calculate_area()
+        self._velocity_field = self.calculate_velocity_field()
         self._outward_normals = []
 
+    def store_neighbours_and_edges(self):
+        self_set = set(self._points)
+        for cell in self._mesh.cells:
+            point_set = set(cell.points)
+            matching_points = point_set.intersection(self_set)
+            point_coordinates = [self._mesh.points[i] for i in matching_points]
+
+            if len(matching_points) == 2:
+                self._neighbours.append(cell)
+                self._edge_vectors.append([
+                point_coordinates[0].x - point_coordinates[1].x,
+                point_coordinates[0].y - point_coordinates[1].y])
+                self._edge_points.append(point_coordinates)    
+
     def calculate_midpoint(self):
-        if self._midpoint is None:
-            point_coordinates = [self._mesh.points[i] for i in self._points]
-            x = sum(p.x for p in point_coordinates) / 3
-            y = sum(p.y for p in point_coordinates) / 3
-            self._midpoint = Point(x, y)
+        point_coordinates = [self._mesh.points[i] for i in self._points]
+        x = sum(p.x for p in point_coordinates) / 3
+        y = sum(p.y for p in point_coordinates) / 3
+        self._midpoint = (x, y)
         return self._midpoint
-    
-    def calculate_oil_amount(self, oil_spill_center):
-        midpoint = self.calculate_midpoint()
-        self._oil_amount = math.exp(- ((midpoint.x - oil_spill_center[0])**2 + (midpoint.y - oil_spill_center[1])**2) / (0.01))
-        return self._oil_amount
 
     def calculate_area(self):
         point_coordinates = [self._mesh.points[i] for i in self._points]
@@ -34,19 +43,23 @@ class Triangle(Cell):
         
         return self._area
     
+    def calculate_oil_amount(self, oil_spill_center):
+        midpoint = self._midpoint
+        self._oil_amount = math.exp(- ((midpoint[0] - oil_spill_center[0])**2 + (midpoint[1] - oil_spill_center[1])**2) / (0.01))
+        return self._oil_amount
+
     def calculate_velocity_field(self):
-        self.calculate_midpoint()
-        x = self._midpoint.x
-        y = self._midpoint.y
-        self._velocityfield = (y - (0.2*x), -x)
-        return self._velocityfield
+        x = self._midpoint[0]
+        y = self._midpoint[1]
+        self._velocity_field = (y - (0.2*x), -x)
+        return self._velocity_field
 
     def store_outward_normals(self):
         for i, edge in enumerate(self._edge_vectors):
             perp_vector = np.array([-edge[1], edge[0]])
             normal = perp_vector / np.linalg.norm(perp_vector)
 
-            midpoint = np.array([self.calculate_midpoint().x, self.calculate_midpoint().y])
+            midpoint = np.array([self._midpoint[0], self._midpoint[1]])
             p = np.array([self._edge_points[i][0].x, self._edge_points[i][0].y])
 
             to_p = p - midpoint
@@ -60,7 +73,17 @@ class Triangle(Cell):
         oil_loss = sum(oil_over_each_facet)
         new_oil_amount = self._oil_amount + oil_loss
         self._oil_amount = new_oil_amount
+
+    def is_boundary(self):
+        from .line_cell import Line
+        if isinstance(self, Triangle):
+            return any(isinstance(neighbor, Line) for neighbor in self._neighbours)
+        return False
     
+    @property
+    def midpoint(self):
+        return self._midpoint
+
     @property
     def oil_amount(self):
         return self._oil_amount
@@ -68,15 +91,23 @@ class Triangle(Cell):
     @property
     def outward_normals(self):
         return self._outward_normals
+    
+    @property
+    def velocity_field(self):
+        return self._velocity_field
+
+    @property
+    def area(self):
+        return self._area
 
     def __str__(self):
         """String representation of the Triangle cell"""
         neighbour_indices = [n.index for n in self._neighbours]
-        midpoint = self.calculate_midpoint()
+        midpoint = self._midpoint
         return (
-            f"Triangle(index={self._index}, "
-            f"boundary={self.is_boundary()}, "
-            f"neighbours={neighbour_indices}, "
-            f"area={self.calculate_area():.4g}, "
-            f"midpoint=({midpoint.x:.4g}, {midpoint.y:.4g}))"
-        )
+    f"Triangle(index={self._index}, "
+    f"boundary={self.is_boundary()}, "
+    f"neighbours={neighbour_indices}, "
+    f"area={self.area:.4g}, "
+    f"midpoint=({midpoint[0]:.4g}, {midpoint[1]:.4g}))"
+)

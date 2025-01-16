@@ -4,32 +4,21 @@ import logging
 from ..visualization.plotter import Animation
 
 class Simulation:
-    def __init__(self, mesh, oil_spill_center, nSteps, tStart, tEnd, fps, write_frequency, restart_file, log_file="logfile.log"):
+    def __init__(self, mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, fps):
         self._mesh = mesh
         self._oil_spill_center = oil_spill_center
+        self._fishing_grounds = fishing_grounds
         self._nSteps = nSteps
         self._tStart = tStart
         self._tEnd = tEnd
         self._fps = fps
-        self._delta_t = (self._tEnd - self._tStart) / self._nSteps
-        self._write_frequency = write_frequency
-        self._restart_file = restart_file
+        self._delta_t = self._tEnd/self._nSteps
 
-        logging.basicConfig(filename=log_file, level=logging.INFO)
-        self.logger = logging.getLogger("Simulation")
-        self.log_simulation_parameters()
+        # Finding first frame when tStart is not 0
+        self._nStart = round((self._tStart/self._tEnd) * self._nSteps)
 
-        if restart_file:
-            self.load_solution(restart_file)
-    
-    def log_simulation_parameters(self):
-        self.logger.info("Simulation Parameters:")
-        self.logger.info(f"nSteps: {self._nSteps}, tStart: {self._tStart}, tEnd: {self._tEnd}, fps: {self._fps}")
-        self.logger.info(f"Oil Spill Center: {self._oil_spill_center}")
-
-    def log_oil_amount(self, time_step):
-        total_oil = sum(cell.oil_amount for cell in self._mesh.cells if hasattr(cell, "oil_amount"))
-        self.logger.info(f"Time {time_step:.2f}: Total Oil Amount = {total_oil:.4f}")
+        self.initialize_oil_spill()
+        self.run_simulation()
 
     def initialize_oil_spill(self):
         from ..cell.triangle_cell import Triangle
@@ -37,40 +26,70 @@ class Simulation:
             if isinstance(cell, Triangle):
                 cell.calculate_oil_amount(self._oil_spill_center)
 
-    def oil_movement(self):
-        from ..cell.triangle_cell import Triangle
-
-        oil_animation = Animation(self._mesh, self._fps)
+    def run_simulation(self):
+        if self._fps is not None:
+            oil_animation = Animation(self._mesh, self._fps, self._fishing_grounds)
+            
+            # Render the first frame if tStart is 0
+            if (self._tStart == 0):
+                oil_animation.render_frame(0, 0, 0)
 
         for n in range(self._nSteps):
-            time_step = n * self._delta_t
-            print(f"Calculating for t = {time_step:.4g}", end='\r')
-            for cell in self._mesh.cells:
-                oil_over_each_facet = []
-                if isinstance(cell, Triangle):
-                    for i, ngh in enumerate(cell.neighbours):
-                        if isinstance(ngh, Triangle):
-                            delta_t = self._delta_t
-                            v_i = np.array(cell.calculate_velocity_field())
-                            v_ngh = np.array(ngh.calculate_velocity_field())
-                            v_avg = 0.5 * (v_i + v_ngh)
-                            A_i = cell.calculate_area()
-                            u_i = cell.oil_amount
-                            u_ngh = ngh.oil_amount
-                            v_vector = cell.outward_normals[i] * np.linalg.norm(cell.edge_vectors[i])
-                            
-                            f = -((delta_t / A_i) * self.g(u_i, u_ngh, v_vector, v_avg))
-                            oil_over_each_facet.append(f)
-                    cell.update_oil_amount(oil_over_each_facet)
+            self.oil_movement()
+            total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
+            current_time = n * self._delta_t
 
-            if n % self._write_frequency == 0:
-                self.save_solution(f"output/restart_t{time_step:.4g}.txt")
-
-            oil_animation.render_frame(n)
+            # logic for rendering first frame based on tStart
+            if (self._tStart == 0) and (self._fps is not None):
+                oil_animation.render_frame(
+                    frame_index = n+1,
+                    time_val = current_time,
+                    total_oil = total_oil_in_fishing_grounds
+                    )
+            elif (n >= self._nStart) and (self._fps is not None):
+                oil_animation.render_frame(
+                    frame_index = n-self._nStart,
+                    time_val = current_time,
+                    total_oil = total_oil_in_fishing_grounds     
+                    )
         
-        oil_animation.create_gif()
+        if self._fps is not None:
+            oil_animation.create_gif()
 
-                
+    def oil_movement(self):
+        from ..cell.triangle_cell import Triangle
+        for cell in self._mesh.cells:
+            oil_over_each_facet = []
+            if isinstance(cell, Triangle):
+                for i, ngh in enumerate(cell.neighbours):
+                    v_i = np.array(cell.velocity_field)
+                    delta_t = self._delta_t
+                    A_i = cell.area
+                    u_i = cell.oil_amount
+                    u_ngh = ngh.oil_amount
+                    v_ngh = np.array(ngh.velocity_field)
+                    v_avg = 0.5 * (v_i + v_ngh)
+
+                    v_vector = cell.outward_normals[i] * np.linalg.norm(cell.edge_vectors[i])
+                        
+                    f = -((delta_t/A_i)*self.g(u_i, u_ngh, v_vector, v_avg))
+                    oil_over_each_facet.append(f)
+                cell.update_oil_amount(oil_over_each_facet)
+
+    def check_fishing_grounds(self, n):
+        total_oil_in_fishing_grounds = 0
+        for cell in self._mesh.cells:
+            x, y = cell.midpoint[0], cell.midpoint[1]
+            x_min, x_max = self._fishing_grounds[0]
+            y_min, y_max = self._fishing_grounds[1]
+
+            if x_min <= x <= x_max and y_min <= y <= y_max:
+                total_oil_in_fishing_grounds += cell.oil_amount
+        
+        print(f"Oil in fishing grounds at t = {n*self._delta_t:.3f}: {total_oil_in_fishing_grounds:.4g}", end='\r')
+        return total_oil_in_fishing_grounds
+
+
     def g(self, u_i, u_ngh, v_vector, v_avg):
         dot_product = np.dot(v_vector, v_avg)
         if dot_product > 0:
