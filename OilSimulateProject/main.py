@@ -1,10 +1,16 @@
 import time
+import tomllib
 from src.io.mesh_reader import Mesh, Point
 from src.simulation.simulator import Simulation
 
+def load_config(file_path):
+    with open(file_path, 'rb') as f:  # Use 'r' if using the `toml` library
+        config = tomllib.load(f)  # Replace with `toml.load(f)` if using `toml`
+    return config
+
 oil_spill_center = Point(0.35, 0.45)
 fishing_grounds = ((0.0, 0.45), (0.0, 0.2))
-nSteps = 100 # number of simulation steps from t = 0 to tEnd
+nSteps = 240 # number of simulation steps from t = 0 to tEnd
 tStart = 0 # start time of gif
 tEnd = 0.5 # end time of gif and simulation
 fps = round(nSteps / 8*((tEnd-tStart)/tEnd)) # this formula gives an ideal speed for the gif

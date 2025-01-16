@@ -35,7 +35,7 @@ class Simulation:
             self.oil_movement(n)
             self.check_fishing_grounds(n)
 
-            # logic for rendering frames based on tStart
+            # logic for rendering first frame based on tStart
             if self._tStart == 0:
                 oil_animation.render_frame(n+1)
             elif n >= self._nStart:
