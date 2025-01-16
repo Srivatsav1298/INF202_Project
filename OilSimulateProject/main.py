@@ -1,29 +1,37 @@
 import time
 import tomllib
-from src.io.mesh_reader import Mesh, Point
+from src.io.mesh_reader import Mesh
 from src.simulation.simulator import Simulation
 
-def load_config(file_path):
-    with open(file_path, 'rb') as f:  # Use 'r' if using the `toml` library
+def load_config(filename):
+    with open(filename, 'rb') as f:  # Use 'r' if using the `toml` library
         config = tomllib.load(f)  # Replace with `toml.load(f)` if using `toml`
     return config
 
-oil_spill_center = Point(0.35, 0.45)
-fishing_grounds = ((0.0, 0.45), (0.0, 0.2))
-nSteps = 70 # number of simulation steps from t = 0 to tEnd
-tStart = 0 # start time of gif
-tEnd = 0.5 # end time of gif and simulation
-fps = round(nSteps / 8*((tEnd-tStart)/tEnd)) # this formula gives an ideal speed for the gif
+config = load_config("config/config.toml")  # Path to your TOML file
+
+# Accessing settings
+nSteps = config['settings']['nSteps']
+tStart = config['settings']['tStart']
+tEnd = config['settings']['tEnd']
+
+# Accessing geometry
+mesh_name = config['geometry']['meshName']
+oil_spill_center = config['geometry']['oilSpillCenter']
+fishing_grounds = config['geometry']['borders']
+log_name = config['geometry']['logName']
+
+fps = config['IO']['writeFrequency']
 
 def main():
     start_time = time.time()
     
-    file_name = "data/mesh/bay.msh"
-    
-    # Create the mesh
-    bay_mesh = Mesh(file_name)
+    file_path = f"data/mesh/{mesh_name}"
 
-    oil_spill_simulation = Simulation(bay_mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, fps)
+    # Create the mesh
+    mesh = Mesh(file_path)
+
+    oil_spill_simulation = Simulation(mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, fps)
 
     end_time = time.time()
     elapsed_time = end_time - start_time

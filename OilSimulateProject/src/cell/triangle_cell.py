@@ -45,7 +45,7 @@ class Triangle(Cell):
     
     def calculate_oil_amount(self, oil_spill_center):
         midpoint = self._midpoint
-        self._oil_amount = math.exp(- ((midpoint[0] - oil_spill_center.x)**2 + (midpoint[1] - oil_spill_center.y)**2) / (0.01))
+        self._oil_amount = math.exp(- ((midpoint[0] - oil_spill_center[0])**2 + (midpoint[1] - oil_spill_center[1])**2) / (0.01))
         return self._oil_amount
 
 

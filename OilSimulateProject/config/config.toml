@@ -1,11 +1,12 @@
 # Example configuration file
 [settings]
-nSteps = 500 # number of time steps
-tStart = 0.1 # start time
-tEnd = 0.2 # end time
+nSteps = 100 # number of time steps
+tStart = 0.2 # start time
+tEnd = 0.5 # end time
 
 [geometry]
 meshName = "bay.msh"
+oilSpillCenter = [0.35, 0.45]
 borders = [ [0.0, 0.45], [0.0, 0.2] ] # define where fish are located
 logName = "log" # name of the log file created
 
