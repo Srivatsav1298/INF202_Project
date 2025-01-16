@@ -37,7 +37,7 @@ class Animation():
         
         self._frame_count += 1
 
-    def create_gif(self, gif_filename='animation.gif'):
+    def create_gif(self, gif_filename='/Users/ismasohail/Desktop/INF-Project/INF202_Project/OilSimulateProject/animation.gif'):
         frames = sorted([os.path.join(self._output_dir, f) for f in os.listdir(self._output_dir) if f.endswith('.png')])
         images = [imageio.imread(frame) for frame in frames]
         imageio.mimsave(gif_filename, images, fps=self._fps)

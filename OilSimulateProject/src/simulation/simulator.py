@@ -45,6 +45,7 @@ class Simulation:
         
         oil_animation.create_gif()
 
+
                 
     def g(self, u_i, u_ngh, v_vector, v_avg):
         dot_product = np.dot(v_vector, v_avg)
