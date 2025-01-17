@@ -1,8 +1,8 @@
 # Example configuration file
 [settings]
-nSteps = 100 # number of time steps
+nSteps = 200 # number of time steps
 tStart = 0 # start time
-tEnd = 0.6 # end time
+tEnd = 1 # end time
 
 [geometry]
 meshName = "bay.msh"
@@ -12,5 +12,5 @@ logName = "log" # name of the log file created
 
 [IO] 
 # Frequency of output video. If not provided, no video is recorded.
-# writeFrequency = 15
+writeFrequency = 15
 # restartFile = "solutions/solution.txt" # Restart file must be provided if start time is provided.

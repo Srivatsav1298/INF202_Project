@@ -77,62 +77,6 @@ class Animation:
         self._frames.append(image)
         self._frame_count += 1
 
-    def make_plot(self, filename='result.png', frame_index=None, time_val=0.0, total_oil=0.0):
-        """
-        Renders and saves a single frame directly to a file.
-        
-        :param filename: The filename for saving the image (default: 'last_frame.png').
-        :param frame_index: The frame index to render (optional).
-        :param time_val: The time value for the frame (float, optional).
-        :param total_oil: The total oil amount for the frame (float, optional).
-        """
-        from ..cell.triangle_cell import Triangle
-
-        # Collect triangle connectivity and oil amounts
-        triangles = [cell.points for cell in self._mesh.cells if isinstance(cell, Triangle)]
-        oil_amount = [cell.oil_amount for cell in self._mesh.cells if isinstance(cell, Triangle)]
-
-        # Create the triangulation
-        triang = tri.Triangulation(self._x, self._y, triangles)
-
-        width = self._x_max - self._x_min
-        height = self._y_max - self._y_min
-
-        fishing_rectangle = patches.Rectangle(
-            (self._x_min, self._y_min),  # bottom-left corner
-            width,
-            height,
-            fill=False,
-            edgecolor="red",
-            linewidth=1
-        )
-
-        # Plot the frame
-        fig, ax = plt.subplots()
-        tpc = ax.tripcolor(triang, facecolors=oil_amount, cmap='viridis', edgecolors='k', vmin=0, vmax=1)
-        fig.colorbar(tpc, label='Oil Amount')
-
-        # Add time and total oil to the plot title
-        ax.set_title(
-            "Oil Spill Simulation\n"
-            f"Time = {time_val:.2f} | Oil in Fishing Grounds = {total_oil:.2f}"
-        )
-
-        ax.add_patch(fishing_rectangle)
-
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_aspect('equal')
-
-        # Save directly to the specified filename
-        try:
-            plt.savefig(filename, format='png', bbox_inches='tight')
-            plt.close(fig)
-            print(f"\n\nLast frame saved as {filename}")
-        except Exception as e:
-            print(f"\n\nFailed to save last frame: {e}")
-
-
     def create_gif(self, gif_filename='animation.gif'):
         """
         Creates a GIF from the in-memory list of frames.
