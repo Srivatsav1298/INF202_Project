@@ -1,9 +1,9 @@
 import time
 import tomllib
 import logging
+import os
 from src.io.mesh_reader import Mesh
 from src.simulation.simulator import Simulation
-from src.io.config_reader import ConfigReader
 
 # Set up logging to a file
 log_filename = 'logfile.log'
@@ -12,10 +12,11 @@ logging.basicConfig(
     level=logging.DEBUG,  # Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     handlers=[
         logging.FileHandler(log_filename),  # Log to file
-        logging.StreamHandler()  # Optionally log to console (if you still want to see critical logs in the terminal)
+        logging.StreamHandler()  # Optionally log to console
     ]
 )
 logger = logging.getLogger(__name__)
+
 
 def load_config(filename):
     logger.info(f"Loading configuration from {filename}")
@@ -28,42 +29,35 @@ def load_config(filename):
         raise
     return config
 
-# Load configuration
-config = load_config("config_files/config.toml")
 
-# Accessing settings
-nSteps = config['settings']['nSteps']
-tStart = config['settings']['tStart']
-tEnd = config['settings']['tEnd']
-
-# Accessing geometry
-mesh_name = config['geometry']['meshName']
-oil_spill_center = config['geometry']['oilSpillCenter']
-fishing_grounds = config['geometry']['borders']
-log_name = config['geometry']['logName']
-
-write_frequency = config["IO"].get("writeFrequency", None)  # Default to None if not provided
-
-if write_frequency is None:
-    logger.warning("No write frequency specified, skipping video output.")
-else:
-    logger.info(f"Write frequency: {write_frequency}")
-
-def main():
+def main(config, result_folder=None):
     start_time = time.time()
     logger.info("Starting the simulation...")
 
-    file_path = f"data/mesh/{mesh_name}"
-
+    file_path = f"data/mesh/{config['geometry']['meshName']}"
+    
     try:
         # Create the mesh
         mesh = Mesh(file_path)
         logger.info(f"Mesh loaded successfully from {file_path}")
         
         # Create the simulation
-        oil_spill_simulation = Simulation(mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, write_frequency)
+        oil_spill_simulation = Simulation(mesh, config['geometry']['oilSpillCenter'], 
+                                          config['geometry']['borders'], 
+                                          config['settings']['nSteps'], 
+                                          config['settings']['tStart'], 
+                                          config['settings']['tEnd'], 
+                                          config["IO"].get("writeFrequency"))
         logger.info("Simulation created successfully.")
         
+        # Run the simulation
+        oil_spill_simulation.run_simulation()
+
+        # Log simulation summary
+        logger.info("Simulation Summary:")
+        logger.info(f"Parameters: {config}")
+        logger.info("Oil amounts in fishing grounds over time logged above.")
+
     except Exception as e:
         logger.error(f"Error occurred during simulation setup: {e}")
         return
@@ -72,5 +66,15 @@ def main():
     elapsed_time = end_time - start_time
     logger.info(f"Execution time: {elapsed_time:.2f} seconds")
 
+
 if __name__ == "__main__":
-    main()
+    # Generate result folder based on config name
+    config_name = os.path.splitext(os.path.basename("config_files/config.toml"))[0]
+    result_folder = f"results/{config_name}"
+    os.makedirs(result_folder, exist_ok=True)
+
+    # Load configuration
+    config = load_config("config_files/config.toml")
+
+    # Call the main function with config and result folder
+    main(config, result_folder)
