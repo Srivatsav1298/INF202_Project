@@ -21,7 +21,8 @@ oil_spill_center = config['geometry']['oilSpillCenter']
 fishing_grounds = config['geometry']['borders']
 log_name = config['geometry']['logName']
 
-write_frequency = config["IO"].get("writeFrequency", None)  # Default to None if not provided
+# This logic default to None if not writeFrequency is not defined in TOML
+write_frequency = config["IO"].get("writeFrequency", None) 
 if write_frequency is None:
     print("No write frequency specified, skipping video output.")
 else:
