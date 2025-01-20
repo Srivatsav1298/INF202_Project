@@ -33,31 +33,8 @@ class Simulation:
 
         for n in range(self._nSteps):
             self.oil_movement()
-            total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
-            current_time = n * self._delta_t
+            self.visualize(oil_animation, n)
 
-            # logic for rendering first frame based on tStart
-            if (self._tStart == 0) and (self._fps is not None):
-                oil_animation.render_frame(
-                    frame_index = n+1,
-                    time_val = current_time,
-                    total_oil = total_oil_in_fishing_grounds
-                    )
-            elif (n >= self._nStart) and (self._fps is not None):
-                oil_animation.render_frame(
-                    frame_index = n-self._nStart,
-                    time_val = current_time,
-                    total_oil = total_oil_in_fishing_grounds     
-                    )
-                
-            if n == (self._nSteps-1):
-                oil_animation.make_plot(
-                    frame_index = n-self._nStart,
-                    time_val = current_time,
-                    total_oil = total_oil_in_fishing_grounds     
-                    )
-
-        
         if self._fps is not None:
             oil_animation.create_gif()
 
@@ -80,6 +57,32 @@ class Simulation:
                     f = -((delta_t/A_i)*self.g(u_i, u_ngh, v_vector, v_avg))
                     oil_over_each_facet.append(f)
                 cell.update_oil_amount(oil_over_each_facet)
+
+    def visualize(self, oil_animation, n):
+        current_time = n * self._delta_t
+        total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
+
+        # logic for rendering first frame based on tStart
+        if (self._tStart == 0) and (self._fps is not None):
+            oil_animation.render_frame(
+                frame_index = n+1,
+                time_val = current_time,
+                total_oil = total_oil_in_fishing_grounds
+                )
+        elif (n >= self._nStart) and (self._fps is not None):
+            oil_animation.render_frame(
+                frame_index = n-self._nStart,
+                time_val = current_time,
+                total_oil = total_oil_in_fishing_grounds     
+                )
+                
+        # generate a plot at the final time step    
+        if n == (self._nSteps-1):
+            oil_animation.make_plot(
+                frame_index = n-self._nStart,
+                time_val = current_time,
+                total_oil = total_oil_in_fishing_grounds     
+                )
 
     def check_fishing_grounds(self, n):
         total_oil_in_fishing_grounds = 0
