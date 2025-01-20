@@ -43,9 +43,9 @@ class Simulation:
         for n in range(self._nSteps):
             logger.debug(f"Running step {n+1}/{self._nSteps} at time t={n*self._delta_t:.3f}s")
             self.oil_movement()
-            self.visualize(oil_animation, n)
+            total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
+            current_time = n * self._delta_t
 
-<<<<<<< HEAD
             # logic for rendering first frame based on tStart
             if (self._tStart == 0) and (self._fps is not None):
                 oil_animation.render_frame(
@@ -60,8 +60,6 @@ class Simulation:
                     total_oil = total_oil_in_fishing_grounds     
                     )
         
-=======
->>>>>>> origin/main
         if self._fps is not None:
             oil_animation.create_gif()
 
@@ -89,32 +87,6 @@ class Simulation:
                 logger.debug(f"Oil flux for cell {cell.index} and its neighbours: {oil_over_each_facet}")
                 
                 cell.update_oil_amount(oil_over_each_facet)
-
-    def visualize(self, oil_animation, n):
-        current_time = n * self._delta_t
-        total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
-
-        # logic for rendering first frame based on tStart
-        if (self._tStart == 0) and (self._fps is not None):
-            oil_animation.render_frame(
-                frame_index = n+1,
-                time_val = current_time,
-                total_oil = total_oil_in_fishing_grounds
-                )
-        elif (n >= self._nStart) and (self._fps is not None):
-            oil_animation.render_frame(
-                frame_index = n-self._nStart,
-                time_val = current_time,
-                total_oil = total_oil_in_fishing_grounds     
-                )
-                
-        # generate a plot at the final time step    
-        if n == (self._nSteps-1):
-            oil_animation.make_plot(
-                frame_index = n-self._nStart,
-                time_val = current_time,
-                total_oil = total_oil_in_fishing_grounds     
-                )
 
     def check_fishing_grounds(self, n):
         total_oil_in_fishing_grounds = 0

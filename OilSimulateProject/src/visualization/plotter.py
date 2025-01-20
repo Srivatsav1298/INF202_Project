@@ -2,11 +2,10 @@ import io
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import matplotlib.patches as patches
-import os
 from PIL import Image
 
 class Animation:
-    def __init__(self, mesh=None, fps=24, fishing_grounds=[[0.0, 0.0], [0.0, 0.0]],output_dir="frames"):
+    def __init__(self, mesh=None, fps=24, fishing_grounds=[[0.0, 0.0], [0.0, 0.0]]):
         self._mesh = mesh
         self._points = self._mesh.points
         self._x = [p.x for p in self._points]
@@ -16,15 +15,15 @@ class Animation:
         self._frame_count = 0
         self._fps = fps
         self._frames = []  # in-memory frames
-        self._output_dir = output_dir
-        
-        # Create frames directory if it does not exist
-        os.makedirs(self._output_dir, exist_ok=True)
-        
 
     def render_frame(self, frame_index=None, time_val=0.0, total_oil=0.0):
         """
-        Renders a single frame as a .png in a folder and appends it to the list of frames.
+        Renders a single frame in-memory as a Pillow Image
+        and appends it to the list of frames.
+        
+        :param frame_index: An integer index for the frame.
+        :param time_val: The current simulation time (float).
+        :param total_oil: Total oil in fishing grounds at this time (float).
         """
         from ..cell.triangle_cell import Triangle
 
@@ -39,12 +38,12 @@ class Animation:
         height = self._y_max - self._y_min
 
         fishing_rectangle = patches.Rectangle(
-            (self._x_min, self._y_min),
+            (self._x_min, self._y_min), #bottomleft corner
             width,
             height,
-            fill=False,
-            edgecolor="red",
-            linewidth=1
+            fill = False,
+            edgecolor = "red",
+            linewidth = 1
         )
 
         # Plot the frame
@@ -59,17 +58,22 @@ class Animation:
         )
 
         ax.add_patch(fishing_rectangle)
+
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_aspect('equal')
 
-        # Save the frame as a PNG file in the output directory
-        frame_filename = os.path.join(self._output_dir, f"frame_{frame_index:04d}.png")
-        plt.savefig(frame_filename, bbox_inches='tight')
+        # Save this figure to an in-memory buffer
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
         plt.close(fig)
 
-        # Append to in-memory frames for GIF creation
-        image = Image.open(frame_filename)
+        # Rewind buffer, open in Pillow
+        buffer.seek(0)
+        image = Image.open(buffer)
+        image.load()   # force-load into memory
+        buffer.close() # now safe to close buffer
+
         self._frames.append(image)
         self._frame_count += 1
 
