@@ -1,4 +1,7 @@
 from .base_cell import Cell
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Line(Cell):
     """

@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import logging
 from ..visualization.plotter import Animation
 import logging
 
