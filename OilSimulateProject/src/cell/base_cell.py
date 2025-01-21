@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+import logging
 
+logger = logging.getLogger(__name__)
 class Cell(ABC):
     """
     Abstract base class for different types of cells in a computational mesh.

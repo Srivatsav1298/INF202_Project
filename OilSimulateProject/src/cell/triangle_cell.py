@@ -1,6 +1,9 @@
 from .base_cell import Cell
 import math
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Triangle(Cell):
     """
@@ -73,11 +76,10 @@ class Triangle(Cell):
         x2, y2 = point_coordinates[1].x, point_coordinates[1].y
         x3, y3 = point_coordinates[2].x, point_coordinates[2].y
 
-        self._area = 0.5 * abs(
-            (x1-x3)*(y2-y1) - (x1-x2)*(y3-y1)
-        )
-        
-        return self._area
+        self.area = 0.5 * abs(
+                (x1-x3)*(y2-y1) - (x1-x2)*(y3-y1)
+            )
+        return self.area
     
     def calculate_oil_amount(self, oil_spill_center: tuple[float, float]) -> float:
         """
