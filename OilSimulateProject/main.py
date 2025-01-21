@@ -64,31 +64,13 @@ def main():
         oil_spill_simulation = Simulation(mesh, oil_spill_center, fishing_grounds, nSteps, tStart, tEnd, write_frequency)
         logger.info("Simulation created successfully.")
         
-        # Run the simulation (if applicable, you can replace this with actual simulation running code)
-        logger.info("Running the simulation...")
-        oil_spill_simulation.run_simulation()
-        logger.info("Simulation completed successfully.")
-        
     except Exception as e:
-        logger.error(f"Error occurred during simulation setup or execution: {e}")
+        logger.error(f"Error occurred during simulation setup: {e}")
         return
 
-    # Simulation Summary
     end_time = time.time()
     elapsed_time = end_time - start_time
     logger.info(f"Execution time: {elapsed_time:.2f} seconds")
-    
-    # Add simulation summary to the log
-    logger.info("===== Simulation Summary =====")
-    logger.info(f"Mesh File: {file_path}")
-    logger.info(f"Oil Spill Center: {oil_spill_center}")
-    logger.info(f"Fishing Grounds Borders: {fishing_grounds}")
-    logger.info(f"Number of Simulation Steps: {nSteps}")
-    logger.info(f"Start Time: {tStart}")
-    logger.info(f"End Time: {tEnd}")
-    logger.info(f"Write Frequency: {write_frequency if write_frequency is not None else 'N/A'}")
-    logger.info(f"Total Execution Time: {elapsed_time:.2f} seconds")
-    logger.info("===== End of Simulation Summary =====")
 
 if __name__ == "__main__":
     main()
