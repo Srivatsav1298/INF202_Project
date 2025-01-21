@@ -76,10 +76,10 @@ class Triangle(Cell):
         x2, y2 = point_coordinates[1].x, point_coordinates[1].y
         x3, y3 = point_coordinates[2].x, point_coordinates[2].y
 
-        self.area = 0.5 * abs(
+        self._area = 0.5 * abs(
                 (x1-x3)*(y2-y1) - (x1-x2)*(y3-y1)
             )
-        return self.area
+        return self._area
     
     def calculate_oil_amount(self, oil_spill_center: tuple[float, float]) -> float:
         """
