@@ -6,8 +6,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
-
 class Simulation:
     """
     A class to simulate the movement of oil spills in a 2D mesh over time.
