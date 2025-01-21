@@ -5,3 +5,5 @@ matplotlib
 numpy
 imageio
 toml
+pathlib
+logging

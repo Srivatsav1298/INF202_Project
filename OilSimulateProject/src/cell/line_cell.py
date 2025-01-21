@@ -65,6 +65,10 @@ class Line(Cell):
     @property
     def velocity_field(self):
         return self._velocity_field
+    
+    @property
+    def oil_amount(self):
+        return self._oil_amount
 
     def __str__(self):
         neighbour_indices = [n.index for n in self._neighbours]

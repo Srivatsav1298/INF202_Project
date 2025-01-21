@@ -1,16 +1,16 @@
 # Example configuration file
 [settings]
-nSteps = 200 # number of time steps
-tStart = 0 # start time
-tEnd = 1 # end time
+nSteps = 70 # number of time steps
+#tStart = 0.4 # start time
+tEnd = 0.6 # end time
 
 [geometry]
 meshName = "bay.msh"
 oilSpillCenter = [0.35, 0.45]
 borders = [ [0.0, 0.45], [0.0, 0.2] ] # define where fish are located
-logName = "log" # name of the log file created
 
 [IO] 
+logName = "log" # name of the log file created
 # Frequency of output video. If not provided, no video is recorded.
-writeFrequency = 15
+writeFrequency = 20
 # restartFile = "solutions/solution.txt" # Restart file must be provided if start time is provided.
