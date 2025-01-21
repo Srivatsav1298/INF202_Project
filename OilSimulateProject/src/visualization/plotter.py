@@ -26,7 +26,7 @@ class Animation:
         self._results_folder = results_folder
         self._frames: List[Image.Image] = []  # Store frames in memory
 
-    def render_frame(self, frame_index: Optional[int] = None, time_val: float = 0.0, total_oil: float = 0.0):
+    def render_frame(self, time_val: float = 0.0, total_oil: float = 0.0):
         """
         Renders a single frame as a Pillow Image and appends it to the in-memory list of frames.
 
@@ -86,7 +86,7 @@ class Animation:
         self._frames.append(image)
         self._frame_count += 1
 
-    def make_plot(self, filename: str = 'result.png', frame_index: Optional[int] = None, time_val: float = 0.0, total_oil: float = 0.0):
+    def make_plot(self, time_val: float = 0.0, total_oil: float = 0.0):
         """
         Renders and saves a single frame to a file.
 

@@ -1,30 +1,37 @@
 import os
 
-def write_solution(mesh, folder="default", i=0):
+def write_solution(mesh, time_val: float, total_oil: float, config_name: str):
     """
-    Write the oil value of each cell in the mesh to a .txt file.
-    
-    :param folder: Subfolder under 'solutions/' to store the file.
-    :param i: Index or identifier for the solution file.
+    Writes the oil value of each cell in the mesh to a .txt file in the 'solutions' directory.
+
+    Args:
+        mesh: The computational mesh containing cells as objects with an 'oil_amount' attribute.
+        time_val (float): The current simulation time.
+        total_oil (float): Total amount of oil in the fishing grounds at the current time step.
+        config_name (str): Name used to identify the output file.
+
+    Creates:
+        A text file in the 'solutions' directory with the oil values for each cell in the mesh.
     """
 
-    # 1. Make sure the output directory exists
-    #output_dir = os.path.join("solutions", folder)
     output_dir = "solutions"
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True) # Ensure the directory exists
     
-    # 3. Collect oil values for each cell
     lines = []
+
+    # Prepare the header line with time and total oil information
+    lines.append(f"t = {time_val}, total_oil_in_fishing_grounds = {total_oil}\n")
+
+    # Add the oil values for each cell
     for cell_index, cell in enumerate(mesh.cells):
-        # Example: assume each cell has an attribute 'oil_value'
         oil_value = cell.oil_amount  
-        # Add it to our list of lines. 
-        # Here we format each line as "Cell X: oil_value"
         lines.append(f"Cell {cell_index}: {oil_value}\n")
     
-    # 4. Write all lines to the solution file
-    solution_file = os.path.join(output_dir, f"solution{i}.txt")
+    # Define the output file path
+    solution_file = os.path.join(output_dir, f"{config_name}_solution.txt")
+
+    # Write the lines to the file
     with open(solution_file, "w") as file:
         file.writelines(lines)
     
-    print(f"Oil values written to {solution_file}")
+    print(f"Oil values successfully written to {solution_file}")
