@@ -17,8 +17,13 @@ class Simulation:
         tEnd: End time for the simulation.
         fps: Frames per second for animation output.
         results_folder: Directory where simulation results are stored.
+        restart_file: File containing oil values for the intial oil spill.
+        config_name: The name of active toml file.
     """
-    def __init__(self, mesh, oil_spill_center: tuple, fishing_grounds: tuple, nSteps: int, tStart: float, tEnd: float, fps: int, results_folder: str):
+    def __init__(
+        self, mesh, oil_spill_center: tuple, fishing_grounds: tuple,
+        nSteps: int, tStart: float, tEnd: float, fps: int,
+        results_folder: str, restart_file: str, config_name: str):
         """
         Initializes the Simulation object with input parameters.
         """
@@ -29,15 +34,25 @@ class Simulation:
         self._tStart = tStart
         self._tEnd = tEnd
         self._fps = fps
-        self._delta_t = self._tEnd / self._nSteps
+        self._delta_t = (self._tEnd - self._tStart) / self._nSteps
         self._results_folder = results_folder
-
-        # Calculate the starting step when tStart is non-zero
-        self._nStart = round((self._tStart / self._tEnd) * self._nSteps)
+        self._restart_file = restart_file
+        self._config_name = config_name
 
         self.initialize_oil_spill()
 
     def initialize_oil_spill(self):
+        """
+        Initializes oil spill based on whether restart file is provided or not
+        """
+        # Use gaussian function if tStart = 0, and there's no restart file
+        if self._restart_file is None:
+            self.gaussian_based_oil_spill()
+        else: # Use oil values from solution file
+            from ..io.solution_reader import initialize_oil_spill
+            initialize_oil_spill(self._mesh, self._restart_file)
+
+    def gaussian_based_oil_spill(self):
         """
         Distributes the initial oil amount across the mesh based on proximity to the spill center.
         """
@@ -46,22 +61,26 @@ class Simulation:
         for cell in self._mesh.cells:
             if isinstance(cell, Triangle):
                 cell.calculate_oil_amount(self._oil_spill_center)
-
+    
     def run_simulation(self):
         """
         Executes the simulation by iterating over time steps and rendering animation frames.
         """
         oil_animation = Animation(self._mesh, self._fps, self._fishing_grounds, self._results_folder)
 
-        # Render the initial frame if starting at tStart = 0
-        if self._tStart == 0 and self._fps is not None:
-            oil_animation.render_frame(0, 0, 0)
+        # Render the initial frame if write_frequency/fps is provided.
+        if self._fps is not None:
+            oil_animation.render_frame(
+                time_val = self._tStart, 
+                total_oil = self.check_fishing_grounds(0))
 
+        # Calculate new oil spread for each step
         for n in range(self._nSteps+1):
             self.oil_movement()
+            # Frames will be rendered if fps is defined.
             self.render_simulation_step(oil_animation, n)
 
-        # Generate the final animation if FPS is specified
+        # Render videoanimation with generated frames if fps is defined.
         if self._fps is not None:
             oil_animation.create_gif()
 
@@ -82,8 +101,9 @@ class Simulation:
                     v_ngh = np.array(ngh.velocity_field)
                     v_avg = 0.5 * (v_i + v_ngh)
 
-                    # Compute flux through each facet
                     v_vector = cell.outward_normals[i] * np.linalg.norm(cell.edge_vectors[i])
+                    
+                    # Compute flux through each facet
                     flux = -((delta_t / A_i) * self.g(u_i, u_ngh, v_vector, v_avg))
                     oil_flux.append(flux)
 
@@ -92,25 +112,36 @@ class Simulation:
 
     def render_simulation_step(self, oil_animation: Animation, n: int):
         """
-        Renders a single frame of the simulation.
+        Renders a single frame of the simulation if fps is provided,
+        and writes a solution as well as final frame at last step
 
         Args:
             oil_animation: The Animation object handling rendering.
             n: Current time step index.
         """
-        current_time = n * self._delta_t
+        current_time = self._tStart + (n * self._delta_t)
         total_oil_in_fishing_grounds = self.check_fishing_grounds(n)
-        logger.info(f"Time = {current_time:.2f} | Oil in Fishing Grounds = {total_oil_in_fishing_grounds:.2f}")
+        logger.info(f"Time = {current_time:.3f} | Oil in Fishing Grounds = {total_oil_in_fishing_grounds:.2f}")
 
-        # Render frames only for the specified range
-        if self._tStart == 0 and self._fps is not None:
-            oil_animation.render_frame(n + 1, current_time, total_oil_in_fishing_grounds)
-        elif n >= self._nStart and self._fps is not None:
-            oil_animation.render_frame(n - self._nStart, current_time, total_oil_in_fishing_grounds)
+        # Render next frame is fps is provided.
+        if self._fps is not None:
+            oil_animation.render_frame(
+                time_val = current_time, 
+                total_oil = total_oil_in_fishing_grounds)
 
-        # Create a final plot at the last time step
-        if n == (self._nSteps - 1):
-            oil_animation.make_plot(n - self._nStart, current_time, total_oil_in_fishing_grounds)
+        # Final solution will always be stored
+        if n == (self._nSteps):
+            # Store image of final plot
+            oil_animation.make_plot(
+                time_val = current_time, 
+                total_oil = total_oil_in_fishing_grounds)
+            # Store oil amount for each cell as solution / restart file
+            from ..io.solution_writer import write_solution
+            write_solution(
+                mesh = self._mesh,
+                time_val = current_time, # this value tells the user what to use as tStart
+                total_oil = total_oil_in_fishing_grounds,
+                config_name = self._config_name)
 
     def check_fishing_grounds(self, n: int) -> float:
         """
@@ -131,7 +162,7 @@ class Simulation:
             if x_min <= x <= x_max and y_min <= y <= y_max:
                 total_oil += cell.oil_amount
 
-        print(f"Oil in fishing grounds at t = {n * self._delta_t:.3f}: {total_oil:.4g}", end='\r')
+        print(f"Oil in fishing grounds at t = {self._tStart + (n * self._delta_t):.3f}: {total_oil:.4g}", end='\r')
         return total_oil
 
     def g(self, u_i: float, u_ngh: float, v_vector: np.ndarray, v_avg: np.ndarray) -> float:
@@ -141,7 +172,7 @@ class Simulation:
         Args:
             u_i: Oil amount in the current cell.
             u_ngh: Oil amount in the neighboring cell.
-            v_vector: Velocity vector through the cell edge.
+            v_vector: Scaled outward normal vector.
             v_avg: Average velocity vector between the current and neighboring cells.
 
         Returns:
