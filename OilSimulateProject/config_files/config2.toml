@@ -1,8 +1,8 @@
 # Example configuration file
 [settings]
-nSteps = 70 # number of time steps
-#tStart = 0.4 # start time
-tEnd = 0.6 # end time
+nSteps = 50 # number of time steps
+#tStart = 0 # start time
+tEnd = 0.2 # end time
 
 [geometry]
 meshName = "bay.msh"

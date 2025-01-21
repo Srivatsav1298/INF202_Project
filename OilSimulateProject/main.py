@@ -29,12 +29,6 @@ def setup_logging(log_filename: str = 'default.log', level: int = logging.INFO) 
     if logger.hasHandlers():
         logger.handlers.clear()
 
-    # Uncomment the following lines to enable console logging.
-    # ch = logging.StreamHandler()
-    # ch.setLevel(level)
-    # ch.setFormatter(logging.Formatter('[%(levelname)s] - %(message)s'))
-    # logger.addHandler(ch)
-
     # File handler for writing logs to a file.
     fh = logging.FileHandler(log_filename, mode='w')
     fh.setLevel(level)
@@ -63,6 +57,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
     log_file_path = results_folder / f"{log_name}.log"
     setup_logging(log_filename=str(log_file_path), level=logging.INFO)
 
+    print(f"\n--- Running simulation for config file: '{config_filename}' ---")
     logger.info(f"--- Running simulation for config file: '{config_filename}' ---")
 
     # Log the configuration details for transparency.
@@ -110,14 +105,12 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
         t_start,
         t_end,
         write_frequency,
-        results_folder
+        results_folder,
+        restart_file,
+        config_basename
     )
 
     sim.run_simulation()
-
-    # Write the simulation results.
-    from src.io.solution_writer import write_solution
-    write_solution(mesh, folder=config_basename, i=0)
 
     elapsed = time.time() - start_time
     logger.info(f"Execution time for '{config_filename}': {elapsed:.2f} seconds\n")
