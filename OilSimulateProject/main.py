@@ -47,7 +47,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
     """
     logger = logging.getLogger(__name__)
 
-    # Prepare the results folder for this config.
+    # Prepare the results folder for this config
     config_basename = os.path.splitext(config_filename)[0]
     results_folder = Path("results") / config_basename
     results_folder.mkdir(parents=True, exist_ok=True)  # Create folder if it doesn't exist.
