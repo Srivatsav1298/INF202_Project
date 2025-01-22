@@ -1,7 +1,7 @@
 # Example configuration file
 [settings]
 nSteps = 100 # number of time steps
-tStart = 0.3 # start time (optional)
+tStart = 0 # start time (optional)
 tEnd = 0.6 # end time
 
 [geometry]
@@ -12,4 +12,4 @@ borders = [ [0.0, 0.45], [0.0, 0.2] ] # define where fish are located
 [IO] 
 logName = "log" # name of the log file created
 writeFrequency = 15 # Frequency of output video. If not provided, no video is recorded.
-restartFile = "solutions/solution1.txt" # Restart file must be provided if start time is provided.
+#restartFile = "solutions/solution1.txt" # Restart file must be provided if start time is provided.
