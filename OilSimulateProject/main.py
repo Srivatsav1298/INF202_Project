@@ -29,7 +29,7 @@ def setup_logging(log_filename: str = 'default.log', level: int = logging.INFO) 
     if logger.hasHandlers():
         logger.handlers.clear()
 
-    # File handler for writing logs to a file.
+    # File handler for writing logs to a file
     fh = logging.FileHandler(log_filename, mode='w')
     fh.setLevel(level)
     fh.setFormatter(logging.Formatter('[%(levelname)s] - %(message)s'))
