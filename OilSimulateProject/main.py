@@ -25,7 +25,7 @@ def setup_logging(log_filename: str = 'default.log', level: int = logging.INFO) 
     logger = logging.getLogger()
     logger.setLevel(level)
 
-    # Avoid stacking handlers when this function is called multiple times.
+    # Avoid stacking handlers when this function. is called multiple times.
     if logger.hasHandlers():
         logger.handlers.clear()
 
