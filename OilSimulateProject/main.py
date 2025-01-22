@@ -60,7 +60,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
     print(f"\n--- Running simulation for config file: '{config_filename}' ---")
     logger.info(f"--- Running simulation for config file: '{config_filename}' ---")
 
-    # Log the configuration details for transparency.
+    # Log the configuration details for transparency
     logger.info("### Simulation Parameters ###")
     for section, params in config.items():
         logger.info(f"[{section}]")
