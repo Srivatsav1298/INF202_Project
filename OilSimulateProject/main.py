@@ -67,7 +67,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
         for key, value in params.items():
             logger.info(f"  {key} = {value}")
 
-    # Extract simulation settings.
+    # Extract simulation settings
     n_steps = config["settings"]["nSteps"]
     t_start = config["settings"]["tStart"]
     t_end = config["settings"]["tEnd"]
