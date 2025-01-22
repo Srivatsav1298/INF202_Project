@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import matplotlib.patches as patches
 from PIL import Image
+from pathlib import Path  # To ensure Path operations
 from typing import List, Optional
 
 class Animation:
@@ -15,6 +16,8 @@ class Animation:
         :param fishing_grounds: Coordinates for the fishing ground rectangle as [[x_min, x_max], [y_min, y_max]].
         :param results_folder: Folder to save rendered results (default: None).
         """
+        if not mesh:
+            raise ValueError("Mesh cannot be None")
         self._mesh = mesh
         self._points = self._mesh.points if self._mesh else []
         self._x = [p.x for p in self._points]
@@ -23,14 +26,13 @@ class Animation:
         self._y_min, self._y_max = fishing_grounds[1]
         self._frame_count = 0
         self._fps = fps
-        self._results_folder = results_folder
+        self._results_folder = Path(results_folder) if results_folder else Path(".")  # Ensure it's a Path
         self._frames: List[Image.Image] = []  # Store frames in memory
 
     def render_frame(self, time_val: float = 0.0, total_oil: float = 0.0):
         """
         Renders a single frame as a Pillow Image and appends it to the in-memory list of frames.
 
-        :param frame_index: Index of the current frame (optional).
         :param time_val: Current simulation time (default: 0.0).
         :param total_oil: Total oil within the fishing grounds at this time (default: 0.0).
         """
@@ -39,6 +41,9 @@ class Animation:
         # Extract triangle connectivity and oil data
         triangles = [cell.points for cell in self._mesh.cells if isinstance(cell, Triangle)]
         oil_amount = [cell.oil_amount for cell in self._mesh.cells if isinstance(cell, Triangle)]
+
+        if not triangles:
+            raise ValueError("No triangles in mesh")
 
         # Generate the triangulation object
         triang = tri.Triangulation(self._x, self._y, triangles)
@@ -90,19 +95,20 @@ class Animation:
         """
         Renders and saves a single frame to a file.
 
-        :param filename: File path to save the frame (default: 'result.png').
-        :param frame_index: Index of the frame to render (optional).
         :param time_val: Simulation time for the frame (default: 0.0).
         :param total_oil: Total oil in the fishing grounds (default: 0.0).
         """
         from ..cell.triangle_cell import Triangle
 
         # Default filename inside the results folder
-        filename = self._results_folder / "result.png"
+        filename = self._results_folder / "result.png"  # Ensure it is a Path object
 
         # Extract triangle connectivity and oil data
         triangles = [cell.points for cell in self._mesh.cells if isinstance(cell, Triangle)]
         oil_amount = [cell.oil_amount for cell in self._mesh.cells if isinstance(cell, Triangle)]
+
+        if not triangles:
+            raise ValueError("No triangles in mesh")
 
         # Generate the triangulation object
         triang = tri.Triangulation(self._x, self._y, triangles)
@@ -149,11 +155,10 @@ class Animation:
 
         Saves the GIF to the specified results folder.
         """
-        gif_filename = self._results_folder / "animation.gif"
+        gif_filename = self._results_folder / "animation.gif"  # Ensure it is a Path object
 
         if not self._frames:
-            print("No frames to create GIF.")
-            return
+            raise ValueError("No frames available to create GIF.")
 
         # Use the first frame as the base for the GIF
         first_frame = self._frames[0]
