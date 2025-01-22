@@ -96,7 +96,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
     file_path = f"data/mesh/{mesh_name}"
     mesh = Mesh(file_path)
 
-    # Initialize and run the simulator.
+    # Initialize and run the simulator
     sim = Simulation(
         mesh,
         oil_spill_center,
