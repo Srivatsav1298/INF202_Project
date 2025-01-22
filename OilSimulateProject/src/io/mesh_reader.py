@@ -44,7 +44,7 @@ class Mesh:
                 # Skipping unsupported cell types (e.g., higher-dimensional cells)
                 logger.debug(f"Skipping unsupported cell type: {block.type}")
 
-        # Establish relationships compute additional properties
+        # Establish relationships and compute additional properties
         self.find_neighbours_and_edges()
         self.find_outward_normals()
 
