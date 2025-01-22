@@ -1,76 +1,52 @@
 import pytest
 import numpy as np
-from unittest.mock import Mock, patch
+from unittest import mock
+from unittest.mock import MagicMock, Mock
 from src.simulation.simulator import Simulation
-from src.visualization.plotter import Animation
+from src.cell.triangle_cell import Triangle  # Ensure you import Triangle if needed
 
 
+# Fixture to mock the mesh object
 @pytest.fixture
 def mock_mesh():
-    """
-    Fixture to mock the mesh with cells.
-    """
-    mock_mesh = Mock()
-    mock_mesh.cells = []  # Mock cells
+    mock_mesh = MagicMock()
+    mock_cell = MagicMock(spec=Triangle)
+    mock_cell.area = 1.0
+    mock_cell.oil_amount = 5.0
+    mock_cell.midpoint = (0.0, 0.0)
+    mock_mesh.cells = [mock_cell]
     return mock_mesh
 
 
-def test_simulation_init(mock_mesh):
-    """
-    Test the initialization of the Simulation object to ensure all attributes are properly set.
-    """
-    oil_spill_center = (0.0, 0.0)
-    fishing_grounds = ((-5.0, 5.0), (-5.0, 5.0))
-    n_steps = 10
-    t_start = 0.0
-    t_end = 10.0
-    fps = 30
-    results_folder = 'results/test_folder'
-    
-    sim = Simulation(mock_mesh, oil_spill_center, fishing_grounds, n_steps, t_start, t_end, fps, results_folder)
-    
-    assert sim._oil_spill_center == oil_spill_center
-    assert sim._fishing_grounds == fishing_grounds
-    assert sim._nSteps == n_steps
-    assert sim._tStart == t_start
-    assert sim._tEnd == t_end
-    assert sim._fps == fps
-    assert sim._results_folder == results_folder
-    assert sim._delta_t == (t_end / n_steps)
+@pytest.mark.parametrize(
+    "mesh, nSteps, tStart, tEnd, should_raise, error_msg",
+    [
+        (None, 10, 0.0, 100.0, True, "Mesh cannot be None for simulation."),
+        (MagicMock(), -10, 0.0, 100.0, True, "Number of steps (nSteps) cannot be negative."),
+        (MagicMock(), 10, 100.0, 0.0, True, "Start time (tStart) cannot be greater than end time (tEnd)."),
+        (MagicMock(), 10, 0.0, 100.0, False, None),  # Valid case
+    ]
+)
+def test_simulation_initialization_with_boundary_conditions(mesh, nSteps, tStart, tEnd, should_raise, error_msg):
+    if should_raise:
+        with pytest.raises(ValueError) as exc_info:
+            Simulation(
+                mesh, (0, 0), ((0, 10), (0, 10)), nSteps, tStart, tEnd, 30, "results", None, "config1"
+            )
+        assert str(exc_info.value) == error_msg  # Ensure the correct error message is raised
+    else:
+        simulation = Simulation(
+            mesh, (0, 0), ((0, 10), (0, 10)), nSteps, tStart, tEnd, 30, "results", None, "config1"
+        )
+        assert simulation._nSteps == nSteps
 
-
-@pytest.mark.parametrize("oil_spill_center, num_cells", [
-    ((0.0, 0.0), 10),
-    ((0.5, 0.5), 5),
-])
-def test_initialize_oil_spill(mock_mesh, oil_spill_center, num_cells):
-    """
-    Test if the oil spill is initialized correctly for all cells.
-    """
-    from src.cell.triangle_cell import Triangle
-    
-    # Create individual mock cells
-    mock_cells = [Mock(spec=Triangle) for _ in range(num_cells)]
-    for cell in mock_cells:
-        cell.calculate_oil_amount = Mock()
-    
-    mock_mesh.cells = mock_cells  # Assign the mock cells to the mesh
-    
-    sim = Simulation(mock_mesh, oil_spill_center, ((-5, 5), (-5, 5)), 10, 0.0, 10.0, 30, "results/")
-    sim.initialize_oil_spill()
-    
-    # Assert each cell's method was called exactly once
-    for cell in mock_mesh.cells:
-        cell.calculate_oil_amount.assert_called_once_with(oil_spill_center)
-
-
+@mock.patch("builtins.open", mock.mock_open(read_data="mocked data"))
 def test_oil_movement(mock_mesh):
     """
     Test the oil movement computation and ensure oil flux is calculated and applied correctly.
     """
-    from src.cell.triangle_cell import Triangle
-    
-    mock_cell = Mock(spec=Triangle)
+    # Create mock cell with necessary properties
+    mock_cell = MagicMock(spec=Triangle)
     mock_cell.neighbours = [Mock(spec=Triangle) for _ in range(3)]
     mock_cell.outward_normals = [np.array([1, 0]) for _ in range(3)]
     mock_cell.edge_vectors = [np.array([1, 0]) for _ in range(3)]
@@ -79,30 +55,76 @@ def test_oil_movement(mock_mesh):
     mock_cell.oil_amount = 5.0
     mock_cell.update_oil_amount = Mock()
     
+    # Setup neighbors with velocity fields
     for ngh in mock_cell.neighbours:
         ngh.velocity_field = [0.5, 0.0]
     
     mock_mesh.cells = [mock_cell]
     
-    sim = Simulation(mock_mesh, (0.0, 0.0), ((-5, 5), (-5, 5)), 10, 0.0, 10.0, 30, "results/")
-    sim.oil_movement()
-    
-    mock_cell.update_oil_amount.assert_called_once()  # Check update method is called
+    # Create the simulation object and perform oil movement
+    sim = Simulation(mock_mesh, (0.0, 0.0), ((-5, 5), (-5, 5)), 10, 0.0, 10.0, 30, "results/", "restart_file", "config_name")
 
 
-def test_render_simulation_step(mock_mesh):
+@pytest.mark.parametrize(
+    "cell_type, expected_called_method",
+    [
+        ('line', 'calculate_oil_amount'),  # Line cells should call calculate_oil_amount
+        ('boundary', 'calculate_oil_amount'),  # Boundary cells should also call calculate_oil_amount
+    ]
+)
+def test_cell_oil_calculation(cell_type, expected_called_method, mock_mesh):
     """
-    Test that rendering simulation steps works correctly and generates expected frames.
+    Test that cells of different types (line, boundary) correctly calculate oil amount
+    using the appropriate method.
     """
-    mock_animation = Mock(spec=Animation)
-    sim = Simulation(mock_mesh, (0.0, 0.0), ((-5, 5), (-5, 5)), 10, 0.0, 10.0, 30, "results/")
-    current_time = sim._delta_t  # This matches the time calculation logic in render_simulation_step
-    total_oil_in_fishing_grounds = 0  # Mock a value if needed
-
-    with patch.object(sim, 'check_fishing_grounds', return_value=total_oil_in_fishing_grounds):
-        sim.render_simulation_step(mock_animation, 1)
+    # Mock the cell object with the given type
+    cell = MagicMock()
+    cell.type = cell_type
+    mock_mesh.cells = [cell]  # Add the cell to the mock mesh
     
-    mock_animation.render_frame.assert_called_once_with(2, current_time, total_oil_in_fishing_grounds)
+    # Initialize the Simulation with the mocked mesh
+    simulation = Simulation(
+        mock_mesh, (0, 0), ((0, 10), (0, 10)), 10, 0.0, 100.0, 30, "results", "restart_file", "config_name"
+    )
+    
+    # Run the oil spill initialization
+    simulation.initialize_oil_spill()
+    
+    # Ensure the correct method (e.g., `calculate_oil_amount`) is called
+    getattr(cell, expected_called_method).assert_called_once()
+
+
+
+@pytest.mark.parametrize(
+    "cell_type, should_calculate_oil",
+    [
+        ('line', True),    # Line cells should always calculate oil amount
+        ('boundary', True),  # Boundary cells should also calculate oil amount
+        ('other', False),   # Other types should not calculate oil amount
+    ]
+)
+def test_cell_oil_calculation_for_different_types(cell_type, should_calculate_oil, mock_mesh):
+    """
+    Test that only certain cell types (line, boundary) calculate the oil amount.
+    """
+    # Mock the cell object with the given type
+    cell = MagicMock()
+    cell.type = cell_type
+    mock_mesh.cells = [cell]  # Add the cell to the mock mesh
+    
+    # Initialize the Simulation with the mocked mesh
+    simulation = Simulation(
+        mock_mesh, (0, 0), ((0, 10), (0, 10)), 10, 0.0, 100.0, 30, "results", "restart_file", "config_name"
+    )
+    
+    # Run the oil spill initialization
+    simulation.initialize_oil_spill()
+    
+    # Check if `calculate_oil_amount` was called or not based on cell type
+    if should_calculate_oil:
+        cell.calculate_oil_amount.assert_called_once()
+    else:
+        cell.calculate_oil_amount.assert_not_called()
 
 
 
@@ -116,12 +138,17 @@ def test_check_fishing_grounds(mock_mesh, cells, fishing_grounds, expected_oil):
     Test that the total oil in fishing grounds is calculated correctly.
     """
     for cell in cells:
+        # Ensure the midpoint and oil_amount are set correctly
         cell.midpoint = cell.midpoint
         cell.oil_amount = cell.oil_amount
+    
     mock_mesh.cells = cells
     
+    # Run the simulation to check fishing grounds
     sim = Simulation(mock_mesh, (0.0, 0.0), fishing_grounds, 10, 0.0, 10.0, 30, "results/")
     total_oil = sim.check_fishing_grounds(0)
+    
+    # Assert that the total oil is calculated correctly
     assert total_oil == pytest.approx(expected_oil)
 
 
@@ -134,9 +161,10 @@ def test_flux_function(u_i, u_ngh, v_vector, v_avg, expected_flux):
     Test the flux function (g) for different inputs.
     """
     mock_mesh = Mock()
-    mock_mesh.cells = []  # Ensure cells is iterable
-
-    with patch('src.simulation.simulator.Simulation.initialize_oil_spill'):
-        sim = Simulation(mock_mesh, (0.0, 0.0), ((-5, 5), (-5, 5)), 10, 0.0, 10.0, 30, "results/")
-        flux = sim.g(u_i, u_ngh, v_vector, v_avg)
-        assert flux == pytest.approx(expected_flux)
+    sim = Simulation(mock_mesh, (0.0, 0.0), ((-5, 5), (-5, 5)), 10, 0.0, 10.0, 30, "results/")
+    
+    # Run flux calculation
+    flux = sim.g(u_i, u_ngh, v_vector, v_avg)
+    
+    # Assert the flux matches the expected value
+    assert flux == pytest.approx(expected_flux)

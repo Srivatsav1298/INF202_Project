@@ -26,9 +26,20 @@ class Simulation:
         self, mesh, oil_spill_center: tuple, fishing_grounds: tuple,
         nSteps: int, tStart: float, tEnd: float, fps: int,
         results_folder: str, restart_file: str, config_name: str):
-        """
-        Initializes the Simulation object with input parameters.
-        """
+        
+        # Validate mesh (Issue 1)
+        if mesh is None:
+            raise ValueError("Mesh cannot be None for simulation.")
+        
+        # Validate nSteps (Issue 2)
+        if nSteps < 0:
+            raise ValueError("Number of steps (nSteps) cannot be negative.")
+        
+        # Validate tStart and tEnd (Issue 3)
+        if tStart > tEnd:
+            raise ValueError("Start time (tStart) cannot be greater than end time (tEnd).")
+        
+        # If all checks pass, initialize the simulation attributes
         self._mesh = mesh
         self._oil_spill_center = oil_spill_center
         self._fishing_grounds = fishing_grounds
@@ -41,7 +52,10 @@ class Simulation:
         self._restart_file = restart_file
         self._config_name = config_name
 
+        # Initialize the oil spill (this method is assumed to be already defined elsewhere in the class)
         self.initialize_oil_spill()
+
+
 
     def initialize_oil_spill(self):
         """
