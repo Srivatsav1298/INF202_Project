@@ -114,7 +114,8 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
 
     elapsed = time.time() - start_time
     logger.info(f"Execution time for '{config_filename}': {elapsed:.2f} seconds\n")
-
+def test():
+    pass
 def main() -> None:
     """
     Main entry point for the simulation script. Parses command-line arguments and runs simulations accordingly.
