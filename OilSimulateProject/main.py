@@ -118,7 +118,7 @@ def test():
     pass
 def main() -> None:
     """
-    Main entry point for the simulation script. Parses command-line arguments and runs simulations accordingly.
+    Main entry point for the simulation script, Parses command-line arguments and runs simulations accordingly.
     """
     parser = argparse.ArgumentParser(
         description="Run the oil-spill simulation using a TOML config."
