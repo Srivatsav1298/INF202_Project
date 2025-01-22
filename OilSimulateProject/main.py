@@ -92,7 +92,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
     # Measure execution time
     start_time = time.time()
 
-    # Load the simulation mesh.
+    # Load the simulation mesh
     file_path = f"data/mesh/{mesh_name}"
     mesh = Mesh(file_path)
 
