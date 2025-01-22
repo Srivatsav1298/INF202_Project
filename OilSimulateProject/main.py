@@ -89,7 +89,7 @@ def run_simulation_for_config(config: dict, config_filename: str) -> None:
     if restart_file is not None:
         logger.info(f"Restart file provided: {restart_file}")
 
-    # Measure execution time.
+    # Measure execution time
     start_time = time.time()
 
     # Load the simulation mesh.
